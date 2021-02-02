@@ -11,7 +11,7 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 conn = psycopg2.connect(
     database='hb_telebot',
     user='postgres',
-    password='wtpmjgda11+',
+    password='admin',
     host='localhost',
     port='5432'
 )
