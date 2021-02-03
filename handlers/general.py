@@ -1,7 +1,7 @@
 from misc import dp, bot, logger_app
 from aiogram import types
 from vars import states, markups
-from database_connection.dbcon import get_lang, set_user_state, get_user_state, get_dict, get_log, update_log
+from database_connection.dbcon import *
 from parsing_data import exchange_rate_parsing
 
 

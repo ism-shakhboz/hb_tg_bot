@@ -2,16 +2,13 @@ from misc import dp, bot, logger_app
 from aiogram import types
 from vars import states, markups
 from os import path
-from database_connection.dbcon import get_lang, set_user_state, get_dict, get_log, update_log, get_region, \
-    get_branches, get_district, get_image, get_user_state, get_districts, get_region_id, set_region_id, code_branch_b, distinct_regions
-
+from database_connection.dbcon import *
 
 try:
     async def send_location(message, lang, user_id, code_region):
         i = 0
         while i < len(code_branch_b(code_region, lang)):
             if message == get_district(code_region, lang, code_branch_b(code_region, lang)[i][0]):
-
                 for j in get_branches(code_region, lang, code_branch_b(code_region, lang)[i][0]):
                     await bot.send_photo(user_id, (get_image(j[1]+'.jpg'))[0])
                     await bot.send_location(user_id, j[3], j[4])

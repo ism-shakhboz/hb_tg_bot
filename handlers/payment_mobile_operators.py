@@ -5,8 +5,7 @@ from cryptography.fernet import Fernet
 import datetime as dt
 import svgate
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
-from database_connection.dbcon import get_lang, set_user_state, get_user_state, update_log, get_log, get_dict, get_all_cards, mobile_payment_report_commit, set_mobile_payment_oper_id_app_user, get_mobile_payment_oper_id, set_mobile_payment_amount, set_mobile_payment_from_user_card, get_card_encode, get_to_phone_number_oper, get_amount_from_user_mobile_payment_oper, get_card_from_user_mobile_payment_oper, get_session_id, set_session_id
-
+from database_connection.dbcon import *
 
 @dp.message_handler(lambda message: get_user_state(message.from_user.id) == states.S_PAYMENT_MOBILE_OPERATORS)
 async def mobile_operators(message: types.Message):

@@ -13,7 +13,7 @@ port = 1234
 headers = {'content-type': 'application/json'}
 
 # PLAY MOBILE
-send_sms = True  # если False смс код будет 1111, если True необходимо настроить url, логин и пароль для Playmobile
+send_sms = False  # если False смс код будет 1111, если True необходимо настроить url, логин и пароль для Playmobile
 url_pm = 'http://172.25.102.8:8083/broker-api/send'
 login_pm = 'Hamkortelegram'
 password_pm = 'T#lH@mk12'

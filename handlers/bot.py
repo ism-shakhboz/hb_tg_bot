@@ -1,17 +1,10 @@
-from psycopg2._psycopg import Error
 from misc import dp, bot, logger_app
 from aiogram import types
 from vars import states, markups
 from config import send_sms
-import datetime as dt
-import svgate
 from aiogram.types import ReplyKeyboardRemove
 from random import randint
-import json
-from database_connection.dbcon import add_user, get_user, set_user_state, get_user_state, set_lang, get_lang, get_dict, \
-    set_phone_number, set_code, get_code, get_phone_number, set_log, conn, update, get_news, update_log, get_log, \
-    get_user_status, get_card_json, set_user_unique_code, get_user_unique_code, playmobile_insert, image_insert, get_buttons, update_user_status, set_timer_sms
-
+from database_connection.dbcon import *
 
 @dp.message_handler(content_types=['photo'])
 async def image(message: types.Message):
@@ -26,16 +19,14 @@ async def start(message: types.Message):
         first_name = message.from_user.first_name
         last_name = message.from_user.last_name
         username = message.from_user.username
-        user = get_user(user_id)
+        user = User().getter(user_id)
 
-        if user is False:
+        if user is None:
             await bot.send_message(user_id, "Выберите язык / Tilni tanlang / Тилни танланг",
                                    reply_markup=markups.lang_m)
             add_user(user_id, '', first_name, last_name, username, states.S_START)
         else:
-            status = get_user_status(user_id)
-            if get_user_status(user_id)=='0':
-              
+            if get_user_status(user_id) == '0':
                 await bot.send_message(user_id, "Выберите язык / Tilni tanlang / Тилни танланг", reply_markup=markups.lang_m)
                 set_user_state(user_id, states.S_START)
             else:

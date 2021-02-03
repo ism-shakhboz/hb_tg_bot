@@ -1,5 +1,6 @@
 import psycopg2
 from psycopg2 import Error, sql
+from psycopg2.extras import DictCursor
 import svgate
 import json
 import urllib3
@@ -16,6 +17,29 @@ conn = psycopg2.connect(
     port='5432'
 )
 
+
+class DBConn:
+    def __init__(self):
+        self.host = "localhost"
+        self.user = "postgres"
+        self.password = "admin"
+        self.db = "hb_telebot"
+        self.port = "5432"
+        self.connection = psycopg2.connect(host=self.host, user=self.user, password=self.password, database=self.db,
+                                           port=self.port)
+        self.cursor = self.connection.cursor(cursor_factory=DictCursor)
+
+
+class User(DBConn):
+    def getter(self, user_id):
+        try:
+            self.cursor.execute('SELECT * FROM app_users WHERE user_id=(%s)', (str(user_id),))
+            row = self.cursor.fetchone()
+            return row
+        except Exception as e:
+            logger_app.error("/database_connection/dbcon.py\nMethod: User().getter()\n" + str(e))
+
+
 def get_card_encode(user_id, card_number):
     try:
         script = 'SELECT encrypted_card_number, card_expiry FROM cards WHERE user_id=(%s) AND card_number=(%s);'
@@ -25,6 +49,7 @@ def get_card_encode(user_id, card_number):
         return cards
     except(Exception, Error) as e:
         logger_app.error("/database_connection/dbcon.py\nMethod: get_card_encode\n" + str(e))
+
 
 def get_all_cards(user_id):
     try:
@@ -36,7 +61,7 @@ def get_all_cards(user_id):
     except(Exception, Error) as e:
         logger_app.error("/database_connection/dbcon.py\nMethod: get_all_cards\n" + str(e))
 
-    
+
 def get_card(user_id):
     try:
         script = 'SELECT new_card_number, new_card_expiry FROM app_users WHERE user_id=(%s);'
@@ -46,7 +71,8 @@ def get_card(user_id):
         return row
     except(Exception, Error) as e:
         logger_app.error("/database_connection/dbcon.py\nMethod: get_card\n" + str(e))
-        
+
+
 def authCard(user_id, cardNumber, expiry, encrypted_card_number):
     try:
         script = 'INSERT INTO cards (user_id, card_number, card_expiry, encrypted_card_number) VALUES (%s, %s, %s, %s);'
@@ -56,11 +82,13 @@ def authCard(user_id, cardNumber, expiry, encrypted_card_number):
     except(Exception, Error) as e:
         logger_app.error("/database_connection/dbcon.py\nMethod: authCard\n" + str(e))
 
+
 def set_session_id(user_id, session_id):
     script = 'UPDATE app_users SET session_id=(%s) WHERE user_id=(%s);'
     cur = conn.cursor()
     cur.execute(script, (session_id, str(user_id)))
     conn.commit()
+
 
 def set_timer_sms(user_id, time):
     try:
@@ -70,7 +98,8 @@ def set_timer_sms(user_id, time):
         conn.commit()
     except(Exception, Error) as e:
         logger_app.error("/database_connection/dbcon.py\nMethod: set_timer_sms\n" + str(e))
-    
+
+
 def get_card_from_user_mobile_payment_oper(user_id):
     try:
         script = 'SELECT "FROM_USER_CARD_NUMBER" FROM mobile_payments_report WHERE "FROM_USER_ID"=(%s) ORDER BY "ID" DESC LIMIT 1;'
@@ -79,7 +108,8 @@ def get_card_from_user_mobile_payment_oper(user_id):
         return cur.fetchone()
     except(Exception, Error) as e:
         logger_app.error("/database_connection/dbcon.py\nMethod: get_amount_from_user_mobile_payment_oper\n" + str(e))
-        
+
+
 def get_to_phone_number_oper(user_id):
     try:
         script = 'SELECT "TO_PHONE_NUMBER" FROM mobile_payments_report WHERE "FROM_USER_ID"=(%s) ORDER BY "ID" DESC LIMIT 1;'
@@ -88,12 +118,14 @@ def get_to_phone_number_oper(user_id):
         return cur.fetchone()
     except(Exception, Error) as e:
         logger_app.error("/database_connection/dbcon.py\nMethod: get_to_phone_number_oper\n" + str(e))
-        
+
+
 def get_session_id(user_id):
     script = 'SELECT session_id FROM app_users WHERE user_id=(%s);'
     cur = conn.cursor()
     cur.execute(script, (str(user_id),))
     return cur.fetchone()[0]
+
 
 def get_amount_from_user_mobile_payment_oper(user_id):
     try:
@@ -103,7 +135,8 @@ def get_amount_from_user_mobile_payment_oper(user_id):
         return cur.fetchone()
     except(Exception, Error) as e:
         logger_app.error("/database_connection/dbcon.py\nMethod: get_amount_from_user_mobile_payment_oper\n" + str(e))
-        
+
+
 def set_mobile_payment_from_user_card(id_oper, from_user_card_number):
     try:
         script = 'UPDATE mobile_payments_report SET "FROM_USER_CARD_NUMBER"=(%s) WHERE "ID"=(%s); '
@@ -112,7 +145,8 @@ def set_mobile_payment_from_user_card(id_oper, from_user_card_number):
         conn.commit()
     except(Exception, Error) as e:
         logger_app.error("/database_connection/dbcon.py\nMethod: set_mobile_payment_from_user_card\n" + str(e))
-        
+
+
 def set_mobile_payment_amount(id_oper, from_user_amount):
     try:
         script = 'UPDATE mobile_payments_report SET "FROM_USER_AMOUNT"=(%s) WHERE "ID"=(%s); '
@@ -121,7 +155,8 @@ def set_mobile_payment_amount(id_oper, from_user_amount):
         conn.commit()
     except(Exception, Error) as e:
         logger_app.error("/database_connection/dbcon.py\nMethod: set_mobile_payment_amount\n" + str(e))
-        
+
+
 def get_mobile_payment_oper_id(user_id):
     try:
         script = 'SELECT "ID" FROM mobile_payments_report WHERE "FROM_USER_ID"=(%s) ORDER BY "ID" DESC LIMIT 1;'
@@ -131,6 +166,7 @@ def get_mobile_payment_oper_id(user_id):
     except(Exception, Error) as e:
         logger_app.error("/database_connection/dbcon.py\nMethod: get_mobile_payment_oper_id\n" + str(e))
 
+
 def set_mobile_payment_oper_id_app_user(user_id, oper_id):
     try:
         script = 'UPDATE app_users SET mobile_payment_oper_id=(%s) WHERE user_id=(%s);'
@@ -139,7 +175,8 @@ def set_mobile_payment_oper_id_app_user(user_id, oper_id):
         conn.commit()
     except(Exception, Error) as e:
         logger_app.error("/database_connection/dbcon.py\nMethod: set_mobile_payment_oper_id_app_user\n" + str(e))
-        
+
+
 def mobile_payment_report_commit(from_user_id, from_user_name, from_user_surname, to_phone_number, date_time):
     try:
         script = 'INSERT INTO mobile_payments_report ("FROM_USER_ID", "FROM_USER_NAME", "FROM_USER_SURNAME", ' \
@@ -150,7 +187,8 @@ def mobile_payment_report_commit(from_user_id, from_user_name, from_user_surname
         conn.commit()
     except(Exception, Error) as e:
         logger_app.error("/database_connection/dbcon.py\nMethod: mobile_payment_report_commit\n" + str(e))
-    
+
+
 def legal_entityAccountTurnover(user_id):
     try:
         script = 'SELECT * FROM "legal_entityAccountTurnover" WHERE phone_number=(SELECT phone_number FROM app_users WHERE user_id=(%s)) AND "codeCoa" LIKE (%s);'
@@ -160,7 +198,8 @@ def legal_entityAccountTurnover(user_id):
         return AccountTurnover
     except(Exception, Error) as e:
         logger_app.error("/database_connection/dbcon.py\nMethod: AccountTurnover\n" + str(e))
-        
+
+
 def code_branch_atm(code, d):
     try:
         script = 'SELECT "CODE_BRANCH" FROM "ATM_BRANCHES" WHERE "FK_ID_REGION"=(SELECT "ID" FROM "REGIONS" WHERE "CODE"=(%s) AND "CODE_LANG"=(%s));'
@@ -170,6 +209,7 @@ def code_branch_atm(code, d):
         return branches
     except(Exception, Error) as e:
         logger_app.error("/database_connection/dbcon.py\nMethod: code_branch\n" + str(e))
+
 
 def code_branch_b(code, d):
     try:
@@ -283,6 +323,7 @@ def set_p2p_oper_id_app_user(user_id, oper_id):
     except(Exception, Error) as e:
         logger_app.error("/database_connection/dbcon.py\nMethod: set_p2p_oper_id\n" + str(e))
 
+
 def get_to_card_p2p_oper(user_id):
     try:
         script = 'SELECT "TO_CARD_NUMBER" FROM p2p_report WHERE "FROM_USER_ID"=(%s) ORDER BY "ID" DESC LIMIT 1;'
@@ -291,7 +332,8 @@ def get_to_card_p2p_oper(user_id):
         return cur.fetchone()
     except(Exception, Error) as e:
         logger_app.error("/database_connection/dbcon.py\nMethod: get_to_card_p2p_oper\n" + str(e))
-        
+
+
 def get_amount_from_user_p2p_oper(user_id):
     try:
         script = 'SELECT "FROM_USER_AMOUNT" FROM p2p_report WHERE "FROM_USER_ID"=(%s) ORDER BY "ID" DESC LIMIT 1;'
@@ -300,7 +342,8 @@ def get_amount_from_user_p2p_oper(user_id):
         return cur.fetchone()
     except(Exception, Error) as e:
         logger_app.error("/database_connection/dbcon.py\nMethod: get_amount_from_user_p2p_oper_id\n" + str(e))
-        
+
+
 def get_p2p_oper_id(user_id):
     try:
         script = 'SELECT "ID" FROM p2p_report WHERE "FROM_USER_ID"=(%s) ORDER BY "ID" DESC LIMIT 1;'
@@ -449,6 +492,7 @@ def get_district(region_code, code_lang, code_district):
     except(Exception, Error) as e:
         logger_app.error("/database_connection/dbcon.py\nMethod: get_district\n" + str(e))
 
+
 def get_minibanks(region_code, code_lang):
     try:
         script = 'SELECT * FROM "MINIBANK_BRANCHES" WHERE "FK_ID_REGION"=(SELECT "ID" FROM "REGIONS" WHERE "CODE"=(' \
@@ -526,7 +570,7 @@ def get_regions(code_lang):
         return regions
     except(Exception, Error) as e:
         logger_app.error("/database_connection/dbcon.py\nMethod: get_regions\n" + str(e))
-        
+
 
 def code_branch_minibank(code, d):
     try:
@@ -605,7 +649,10 @@ def update(user_id, cards):
             if in_card["result"]:
                 insert_script = 'INSERT INTO cards(user_id, card_json, aacct, mfo, client_unique_id) VALUES (%s, %s, %s, %s, %s);'
                 cur = conn.cursor()
-                cur.execute(insert_script, (str(user_id), json.dumps(in_card), (in_card["result"]["aacct"])[5:], (in_card["result"]["aacct"])[0:5], (in_card["result"]["aacct"])[-11:-3]))
+                cur.execute(insert_script, (
+                    str(user_id), json.dumps(in_card), (in_card["result"]["aacct"])[5:],
+                    (in_card["result"]["aacct"])[0:5],
+                    (in_card["result"]["aacct"])[-11:-3]))
                 ids.append(str(in_card["result"]['id']))
         conn.commit()
         return svgate.get_balance(ids)
@@ -707,16 +754,6 @@ def set_user_state(user_id, state):
         logger_app.error("/database_connection/dbcon.py\nMethod: set_user_state\n" + str(e))
 
 
-def get_user(user_id):
-    try:
-        script = 'SELECT * FROM app_users WHERE user_id=(%s);'
-        cur = conn.cursor()
-        cur.execute(script, (str(user_id),))
-        return cur.fetchone() is not None
-    except(Exception, Error) as e:
-        logger_app.error("/database_connection/dbcon.py\nMethod: get_user\n" + str(e))
-
-
 def get_user_status(user_id):
     try:
         script = 'SELECT status FROM app_users WHERE user_id=(%s);'
@@ -725,6 +762,7 @@ def get_user_status(user_id):
         return cur.fetchone()[0]
     except(Exception, Error) as e:
         logger_app.error("/database_connection/dbcon.py\nMethod: get_user_status\n" + str(e))
+
 
 def update_user_status(user_id):
     try:
@@ -735,12 +773,15 @@ def update_user_status(user_id):
     except(Exception, Error) as e:
         logger_app.error("/database_connection/dbcon.py\nMethod: update_user_status\n" + str(e))
 
+
 def add_user(user_id, phone_number, first_name, last_name, username, state):
     try:
         script = 'INSERT INTO app_users (user_id, phone_number, first_name, last_name, username, user_language, ' \
                  'state, code_otp, status, expire) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);'
         cur = conn.cursor()
-        cur.execute(script, (str(user_id), phone_number, first_name, last_name, username, 'ru', state, None, '0', str(dt.datetime.now())))
+        cur.execute(script, (
+            str(user_id), phone_number, first_name, last_name, username, 'ru', state, None, '0',
+            str(dt.datetime.now())))
         conn.commit()
     except(Exception, Error) as e:
         print(e)

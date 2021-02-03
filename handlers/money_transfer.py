@@ -1,11 +1,8 @@
 from misc import dp, bot, logger_p2p
 from aiogram import types
-import datetime as dt
 from cryptography.fernet import Fernet
 from vars import states, markups
-from database_connection.dbcon import get_lang, set_user_state, get_user_state, get_dict, get_log, update_log, \
-    get_card_json, \
-    p2p_report_commit, get_p2p_oper_id, set_p2p_oper_id_app_user, set_p2p_info, set_p2p_from_user_card, set_p2p_amount, get_all_cards, get_card_encode, get_amount_from_user_p2p_oper, get_to_card_p2p_oper, set_session_id, get_session_id
+from database_connection.dbcon import *
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 import json
 import svgate
