@@ -322,3 +322,9 @@ Method: start
 2021-02-04 04:22:49,446 - ERROR - /handlers/bot.py
 Method: start
 Expected bytes or unicode string, got type instead
+2021-02-04 04:59:56,799 - ERROR - /handlers/branches.py
+Method: bo_fergana
+Wrong file identifier/http url specified
+2021-02-04 05:00:01,653 - ERROR - /handlers/branches.py
+Method: bo_karakalpak
+Wrong file identifier/http url specified

@@ -33,11 +33,93 @@ class DBConn:
 class User(DBConn):
     def getter(self, user_id):
         try:
-            self.cursor.execute('SELECT * FROM app_users WHERE user_id=(%s)', (str(user_id),))
+            script = 'SELECT * FROM app_users WHERE user_id=(%s)'
+            self.cursor.execute(script, (str(user_id),))
             row = self.cursor.fetchone()
             return row
         except Exception as e:
-            logger_app.error("/database_connection/dbcon.py\nMethod: User().getter()\n" + str(e))
+            logger_app.error("/database_connection/dbcon.py\nMethod: User().getter\n" + str(e))
+
+    def add_user(self, user_id, phone_number, first_name, last_name, username, state):
+        try:
+            script = 'INSERT INTO app_users (user_id, phone_number, first_name, last_name, username, user_language, ' \
+                     'state, code_otp, status, expire) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);'
+            self.cursor.execute(script, (str(user_id), phone_number, first_name, last_name, username, 'ru', state, None, '0', str(dt.datetime.now())))
+            self.connection.commit()
+        except(Exception, Error) as e:
+            logger_app.error("/database_connection/dbcon.py\nMethod: User().add_user\n" + str(e))
+
+    def set_status(self, user_id):
+        try:
+            script = 'UPDATE app_users SET status=(%s) WHERE user_id=(%s);'
+            self.cursor.execute(script, ('1', str(user_id)))
+            self.connection.commit()
+        except(Exception, Error) as e:
+            logger_app.error("/database_connection/dbcon.py\nMethod: User().set_status\n" + str(e))
+
+    def set_session_id(self, user_id, session_id):
+        try:
+            script = 'UPDATE app_users SET session_id=(%s) WHERE user_id=(%s);'
+            self.cursor.execute(script, (session_id, str(user_id)))
+            self.connection.commit()
+        except(Exception, Error) as e:
+            logger_app.error("/database_connection/dbcon.py\nMethod: User().set_session_id\n" + str(e))
+
+    def set_timer_sms(self, user_id, time):
+        try:
+            script = 'UPDATE app_users SET expire=(%s) WHERE user_id=(%s); '
+            self.cursor.execute(script, (time, user_id))
+            self.connection.commit()
+        except(Exception, Error) as e:
+            logger_app.error("/database_connection/dbcon.py\nMethod: User().set_timer_sms\n" + str(e))
+
+    def set_mobile_payment_oper_id(self, user_id, oper_id):
+        try:
+            script = 'UPDATE app_users SET mobile_payment_oper_id=(%s) WHERE user_id=(%s);'
+            self.cursor.execute(script, (oper_id, user_id))
+            self.connection.commit()
+        except(Exception, Error) as e:
+            logger_app.error("/database_connection/dbcon.py\nMethod: User().set_mobile_payment_oper_id\n" + str(e))
+
+    def set_p2p_oper_id(self, user_id, oper_id):
+        try:
+            script = 'UPDATE app_users SET p2p_report_oper_id=(%s) WHERE user_id=(%s);'
+            self.cursor.execute(script, (oper_id, user_id))
+            self.connection.commit()
+        except(Exception, Error) as e:
+            logger_app.error("/database_connection/dbcon.py\nMethod: User().set_p2p_oper_id\n" + str(e))
+
+    def set_code(self, user_id, code):
+        try:
+            script = 'UPDATE app_users SET code_otp=(%s) WHERE user_id=(%s);'
+            self.cursor.execute(script, (code, str(user_id)))
+            self.connection.commit()
+        except(Exception, Error) as e:
+            logger_app.error("/database_connection/dbcon.py\nMethod: User().set_code\n" + str(e))
+
+    def set_phone_number(self, user_id, phone_number):
+        try:
+            script = 'UPDATE app_users SET phone_number=(%s) WHERE user_id=(%s);'
+            self.cursor.execute(script, (phone_number, str(user_id)))
+            self.connection.commit()
+        except(Exception, Error) as e:
+            logger_app.error("/database_connection/dbcon.py\nMethod: User().set_phone_number\n" + str(e))
+
+    def set_lang(self, user_id, lang):
+        try:
+            script = 'UPDATE app_users SET user_language=(%s) WHERE user_id=(%s);'
+            self.cursor.execute(script, (lang, str(user_id)))
+            self.connection.commit()
+        except(Exception, Error) as e:
+            logger_app.error("/database_connection/dbcon.py\nMethod: User().set_lang\n" + str(e))
+
+    def set_user_state(self, user_id, state):
+        try:
+            script = 'UPDATE app_users SET state=(%s) WHERE user_id=(%s);'
+            self.cursor.execute(script, (state, str(user_id)))
+            self.connection.commit()
+        except(Exception, Error) as e:
+            logger_app.error("/database_connection/dbcon.py\nMethod: User().set_user_state\n" + str(e))
 
 
 def get_card_encode(user_id, card_number):
@@ -62,17 +144,6 @@ def get_all_cards(user_id):
         logger_app.error("/database_connection/dbcon.py\nMethod: get_all_cards\n" + str(e))
 
 
-def get_card(user_id):
-    try:
-        script = 'SELECT new_card_number, new_card_expiry FROM app_users WHERE user_id=(%s);'
-        cur = conn.cursor()
-        cur.execute(script, (str(user_id),))
-        row = cur.fetchone()
-        return row
-    except(Exception, Error) as e:
-        logger_app.error("/database_connection/dbcon.py\nMethod: get_card\n" + str(e))
-
-
 def authCard(user_id, cardNumber, expiry, encrypted_card_number):
     try:
         script = 'INSERT INTO cards (user_id, card_number, card_expiry, encrypted_card_number) VALUES (%s, %s, %s, %s);'
@@ -81,23 +152,6 @@ def authCard(user_id, cardNumber, expiry, encrypted_card_number):
         conn.commit()
     except(Exception, Error) as e:
         logger_app.error("/database_connection/dbcon.py\nMethod: authCard\n" + str(e))
-
-
-def set_session_id(user_id, session_id):
-    script = 'UPDATE app_users SET session_id=(%s) WHERE user_id=(%s);'
-    cur = conn.cursor()
-    cur.execute(script, (session_id, str(user_id)))
-    conn.commit()
-
-
-def set_timer_sms(user_id, time):
-    try:
-        script = 'UPDATE app_users SET expire=(%s) WHERE user_id=(%s); '
-        cur = conn.cursor()
-        cur.execute(script, (time, user_id))
-        conn.commit()
-    except(Exception, Error) as e:
-        logger_app.error("/database_connection/dbcon.py\nMethod: set_timer_sms\n" + str(e))
 
 
 def get_card_from_user_mobile_payment_oper(user_id):
@@ -118,13 +172,6 @@ def get_to_phone_number_oper(user_id):
         return cur.fetchone()
     except(Exception, Error) as e:
         logger_app.error("/database_connection/dbcon.py\nMethod: get_to_phone_number_oper\n" + str(e))
-
-
-def get_session_id(user_id):
-    script = 'SELECT session_id FROM app_users WHERE user_id=(%s);'
-    cur = conn.cursor()
-    cur.execute(script, (str(user_id),))
-    return cur.fetchone()[0]
 
 
 def get_amount_from_user_mobile_payment_oper(user_id):
@@ -165,16 +212,6 @@ def get_mobile_payment_oper_id(user_id):
         return cur.fetchone()
     except(Exception, Error) as e:
         logger_app.error("/database_connection/dbcon.py\nMethod: get_mobile_payment_oper_id\n" + str(e))
-
-
-def set_mobile_payment_oper_id_app_user(user_id, oper_id):
-    try:
-        script = 'UPDATE app_users SET mobile_payment_oper_id=(%s) WHERE user_id=(%s);'
-        cur = conn.cursor()
-        cur.execute(script, (oper_id, user_id))
-        conn.commit()
-    except(Exception, Error) as e:
-        logger_app.error("/database_connection/dbcon.py\nMethod: set_mobile_payment_oper_id_app_user\n" + str(e))
 
 
 def mobile_payment_report_commit(from_user_id, from_user_name, from_user_surname, to_phone_number, date_time):
@@ -312,16 +349,6 @@ def playmobile_insert(user_id, message, date_time):
         conn.commit()
     except(Exception, Error) as e:
         logger_app.error("/database_connection/dbcon.py\nMethod: playmobile_insert\n" + str(e))
-
-
-def set_p2p_oper_id_app_user(user_id, oper_id):
-    try:
-        script = 'UPDATE app_users SET p2p_report_oper_id=(%s) WHERE user_id=(%s);'
-        cur = conn.cursor()
-        cur.execute(script, (oper_id, user_id))
-        conn.commit()
-    except(Exception, Error) as e:
-        logger_app.error("/database_connection/dbcon.py\nMethod: set_p2p_oper_id\n" + str(e))
 
 
 def get_to_card_p2p_oper(user_id):
@@ -528,28 +555,6 @@ def get_districts(region_code, code_lang):
     except(Exception, Error) as e:
         logger_app.error("/database_connection/dbcon.py\nMethod: get_districts\n" + str(e))
 
-
-def get_region_id(user_id):
-    try:
-        script = 'SELECT code_region FROM app_users WHERE user_id=(%s);'
-        cur = conn.cursor()
-        cur.execute(script, (user_id,))
-        row = cur.fetchone()
-        return row[0]
-    except(Exception, Error) as e:
-        logger_app.error("/database_connection/dbcon.py\nMethod: get_region_id\n" + str(e))
-
-
-def set_region_id(user_id, region_id):
-    try:
-        script = 'UPDATE app_users SET code_region=(%s) WHERE user_id=(%s);'
-        cur = conn.cursor()
-        cur.execute(script, (region_id, str(user_id)))
-        conn.commit()
-    except(Exception, Error) as e:
-        logger_app.error("/database_connection/dbcon.py\nMethod: set_region_id\n" + str(e))
-
-
 def get_region(code, lang):
     try:
         script = 'SELECT "NAME" FROM "REGIONS" WHERE "CODE"=(%s) and "CODE_LANG"=(%s);'
@@ -692,26 +697,6 @@ def get_code(user_id):
         logger_app.error("/database_connection/dbcon.py\nMethod: get_code\n" + str(e))
 
 
-def set_code(user_id, code):
-    try:
-        script = 'UPDATE app_users SET code_otp=(%s) WHERE user_id=(%s);'
-        cur = conn.cursor()
-        cur.execute(script, (code, str(user_id)))
-        conn.commit()
-    except(Exception, Error) as e:
-        logger_app.error("/database_connection/dbcon.py\nMethod: set_code\n" + str(e))
-
-
-def set_phone_number(user_id, phone_number):
-    try:
-        script = 'UPDATE app_users SET phone_number=(%s) WHERE user_id=(%s);'
-        cur = conn.cursor()
-        cur.execute(script, (phone_number, str(user_id)))
-        conn.commit()
-    except(Exception, Error) as e:
-        logger_app.error("/database_connection/dbcon.py\nMethod: set_phone_number\n" + str(e))
-
-
 def get_lang(user_id):
     try:
         script = 'SELECT user_language FROM app_users WHERE user_id=(%s);'
@@ -721,16 +706,6 @@ def get_lang(user_id):
         return row[0]
     except(Exception, Error) as e:
         logger_app.error("/database_connection/dbcon.py\nMethod: get_lang\n" + str(e))
-
-
-def set_lang(user_id, lang):
-    try:
-        script = 'UPDATE app_users SET user_language=(%s) WHERE user_id=(%s);'
-        cur = conn.cursor()
-        cur.execute(script, (lang, str(user_id)))
-        conn.commit()
-    except(Exception, Error) as e:
-        logger_app.error("/database_connection/dbcon.py\nMethod: set_lang\n" + str(e))
 
 
 def get_dict(key, lang):
@@ -744,16 +719,6 @@ def get_dict(key, lang):
         logger_app.error("/database_connection/dbcon.py\nMethod: get_dict\n" + str(e))
 
 
-def set_user_state(user_id, state):
-    try:
-        script = 'UPDATE app_users SET state=(%s) WHERE user_id=(%s);'
-        cur = conn.cursor()
-        cur.execute(script, (state, str(user_id)))
-        conn.commit()
-    except(Exception, Error) as e:
-        logger_app.error("/database_connection/dbcon.py\nMethod: set_user_state\n" + str(e))
-
-
 def get_user_status(user_id):
     try:
         script = 'SELECT status FROM app_users WHERE user_id=(%s);'
@@ -763,25 +728,3 @@ def get_user_status(user_id):
     except(Exception, Error) as e:
         logger_app.error("/database_connection/dbcon.py\nMethod: get_user_status\n" + str(e))
 
-
-def update_user_status(user_id):
-    try:
-        script = 'UPDATE app_users SET status=(%s) WHERE user_id=(%s);'
-        cur = conn.cursor()
-        cur.execute(script, ('1', str(user_id)))
-        conn.commit()
-    except(Exception, Error) as e:
-        logger_app.error("/database_connection/dbcon.py\nMethod: update_user_status\n" + str(e))
-
-
-def add_user(user_id, phone_number, first_name, last_name, username, state):
-    try:
-        script = 'INSERT INTO app_users (user_id, phone_number, first_name, last_name, username, user_language, ' \
-                 'state, code_otp, status, expire) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);'
-        cur = conn.cursor()
-        cur.execute(script, (
-            str(user_id), phone_number, first_name, last_name, username, 'ru', state, None, '0',
-            str(dt.datetime.now())))
-        conn.commit()
-    except(Exception, Error) as e:
-        print(e)

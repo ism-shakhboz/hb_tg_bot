@@ -20,14 +20,14 @@ async def card_to_card_transfers(message: types.Message):
         update_log(user_id, get_log(user_id) + message.text)
         if message.text == get_dict('cancel', d):
             await bot.send_message(user_id, get_dict('payments_hint', d), reply_markup=markups.payments(d))
-            set_user_state(user_id, states.S_PAYMENTS)
+            User().set_user_state(user_id, states.S_PAYMENTS)
         elif str(message.text).isdecimal() and len(str(message.text)) == 16:
             receiver = svgate.getCardName(message.text)        
             if receiver['msgrespdata']['errorCode'] == '0':
                 await bot.send_message(user_id, get_dict('receiver', d) + receiver['msgrespdata']['response']['name'] + '\n' + get_dict('card_number', d) + message.text + '\n' + get_dict('enter_amount', d), reply_markup=markups.cancel(d))
                 p2p_report_commit(user_id, first_name, last_name, message.text, str(dt.datetime.now()))
-                set_p2p_oper_id_app_user(user_id, (get_p2p_oper_id(user_id)[0]))
-                set_user_state(user_id, states.S_TYPE_SUM)
+                User().set_p2p_oper_id(user_id, (get_p2p_oper_id(user_id)[0]))
+                User().set_user_state(user_id, states.S_TYPE_SUM)
             else:
                 await bot.send_message(message.from_user.id, get_dict('recipient_not_found', d),
                                        reply_markup=markups.cancel(d))
@@ -48,7 +48,7 @@ async def enter_amount(message: types.Message):
         if str(message.text).isnumeric():
             if float(message.text) < 1000:
                 await bot.send_message(user_id, get_dict('minimum_sum_p2p', d))
-                set_user_state(user_id, states.S_TYPE_SUM)
+                User().set_user_state(user_id, states.S_TYPE_SUM)
             else:
                 set_p2p_amount((get_p2p_oper_id(user_id)[0]), float(str(message.text)))
                 set_p2p_info((get_p2p_oper_id(user_id)[0]), 'Enter amount', 'Summani kiriting', str(dt.datetime.now()))
@@ -65,7 +65,7 @@ async def enter_amount(message: types.Message):
                     await bot.send_message(user_id, get_dict('card_check', d))
         elif message.text == get_dict('cancel', d):
             await bot.send_message(user_id, get_dict('section', d), reply_markup=markups.payments(d))
-            set_user_state(user_id, states.S_PAYMENTS)
+            User().set_user_state(user_id, states.S_PAYMENTS)
         else:
             await bot.send_message(user_id, get_dict('error_enter_amount_p2p', d), reply_markup=markups.cancel(d))
     except Exception as e:
@@ -93,7 +93,7 @@ async def p2p(callback_query: types.CallbackQuery):
             await bot.edit_message_text(chat_id=callback_query.message.chat.id,
                                         message_id=callback_query.message.message_id, text=get_dict('section', d),
                                         reply_markup=markups.payments(d))
-            set_user_state(user_id, states.S_PAYMENTS)
+            User().set_user_state(user_id, states.S_PAYMENTS)
         else:
             access = InlineKeyboardMarkup().add(InlineKeyboardButton(get_dict('confirm', d), callback_data="access"+callback_query.data[3:]))
             res = get_dict('confirm_transfer_card_to_card', d) + ' ' +callback_query.data[3:] + "\n" + get_dict('to_card', d)+' '+get_to_card_p2p_oper(user_id)[0]+'\n'+get_dict('amount', d)+' '+ "{:,.2f}".format((int(get_amount_from_user_p2p_oper(user_id)[0])))+' '+get_dict('sum', d)
@@ -123,8 +123,8 @@ async def access(callback_query: types.CallbackQuery):
             await bot.send_message(callback_query.from_user.id, get_dict('sms_code', d), reply_markup=markups.cancel(d))
             set_p2p_info((get_p2p_oper_id(user_id)[0]), 'SMS', 'SMS kodni kiriting', str(dt.datetime.now()))
            
-            set_session_id(user_id, errorCode['msgrespdata']['response']['sessionId'])
-            set_user_state(user_id, states.S_SMS_TYPE_P2P)
+            User().set_session_id(user_id, errorCode['msgrespdata']['response']['sessionId'])
+            User().set_user_state(user_id, states.S_SMS_TYPE_P2P)
         else:
             await bot.send_message(callback_query.from_user.id,
                                    get_dict('error_transfer_card_to_card', d) + errorCode["msgrespdata"]["errorMessage"])
@@ -134,7 +134,7 @@ async def access(callback_query: types.CallbackQuery):
             await bot.delete_message(callback_query.message.chat.id, callback_query.message.message_id)
             await bot.send_message(callback_query.from_user.id, get_dict('section', d),
                                    reply_markup=markups.payments(d))
-            set_user_state(user_id, states.S_PAYMENTS)
+            User().set_user_state(user_id, states.S_PAYMENTS)
     except Exception as e:
         logger_p2p.error("/handlers/money_transfer.py\nMethod: access\n" + str(e))
 
@@ -147,17 +147,17 @@ async def sms(message: types.Message):
         update_log(user_id, get_log(user_id) + message.text)
         if message.text == get_dict('cancel', d):
             await bot.send_message(user_id, get_dict('section', d), reply_markup=markups.payments(d))
-            set_user_state(user_id, states.S_PAYMENTS)
+            User().set_user_state(user_id, states.S_PAYMENTS)
         else:
-            sessionId = get_session_id(user_id)
+            sessionId = (User().getter(user_id))['session_id']
             confirmCode = str(message.text)
             errorCode = (svgate.confirmOperationAuthCard(sessionId, confirmCode))['msgrespdata']['errorCode']
             if errorCode == '0':
                 await bot.send_message(user_id, get_dict('success_transfer_card_to_card', d), reply_markup=markups.payments(d))
                 set_p2p_info((get_p2p_oper_id(user_id)[0]), 'Success', 'To''lov amalga oshirildi', str(dt.datetime.now()))
-                set_user_state(user_id, states.S_PAYMENTS)
+                User().set_user_state(user_id, states.S_PAYMENTS)
             else:
                 await bot.send_message(user_id, get_dict('error_transfer_card_to_card', d), reply_markup=markups.payments(d))
-                set_user_state(user_id, states.S_PAYMENTS)
+                User().set_user_state(user_id, states.S_PAYMENTS)
     except Exception as e:
         logger_p2p.error("/handlers/individual_cards.py\nMethod: new_card_number\n" + str(e))
