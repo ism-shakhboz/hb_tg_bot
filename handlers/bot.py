@@ -2,7 +2,6 @@ from psycopg2._psycopg import Error
 from misc import dp, bot, logger_app
 from aiogram import types
 from vars import states, markups
-from config import send_sms
 import datetime as dt
 import svgate
 from aiogram.types import ReplyKeyboardRemove
@@ -26,9 +25,8 @@ async def start(message: types.Message):
         username = message.from_user.username
         user = get_user(user_id)
 
-        if user is False:
-            await bot.send_message(user_id, "Выберите язык / Tilni tanlang / Тилни танланг",
-                                   reply_markup=markups.lang_m)
+        if user is None:
+            await bot.send_message(user_id, "Выберите язык / Tilni tanlang / Тилни танланг", reply_markup=markups.lang_m)
             add_user(user_id, '', first_name, last_name, username, states.S_START)
         else:
             status = get_user_status(user_id)
@@ -75,15 +73,12 @@ async def auth(message: types.Message):
         set_phone_number(user_id, str(message.contact.phone_number).replace('+', ''))
         set_timer_sms(user_id, str(dt.datetime.now() + dt.timedelta(minutes=1)))
         otp = randint(100000, 999999)
-        if send_sms:
-            set_code(user_id, otp)
-            script = 'SELECT "ID" FROM playmobile_report order by "ID" DESC LIMIT 1'
-            cur = conn.cursor()
-            cur.execute(script, (str(user_id),))
-            svgate.get_sms(message.contact.phone_number, otp, (int(cur.fetchone()[0])+1))
-            playmobile_insert(user_id, 'Message is: ' + str(otp), str(dt.datetime.now()))
-        else:
-            set_code(user_id, '1111')
+        set_code(user_id, otp)
+        script = 'SELECT "ID" FROM playmobile_report order by "ID" DESC LIMIT 1'
+        cur = conn.cursor()
+        cur.execute(script, (str(user_id),))
+        svgate.get_sms(message.contact.phone_number, otp, (int(cur.fetchone()[0])+1))
+        playmobile_insert(user_id, 'Message is: ' + str(otp), str(dt.datetime.now()))
         await bot.send_message(user_id, get_dict('sms_code', d), reply_markup = ReplyKeyboardRemove())
         set_user_state(user_id, states.S_CONFIRM_NUMBER)
     except Exception as e:

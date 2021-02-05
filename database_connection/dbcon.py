@@ -2,18 +2,22 @@ import psycopg2
 from psycopg2 import Error, sql
 import svgate
 import json
+import configparser
 import urllib3
 import datetime as dt
 from misc import logger_app
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
+config = configparser.ConfigParser()
+config.read("config.ini")
+
 conn = psycopg2.connect(
-    database='hb_telebot',
-    user='postgres',
-    password='admin',
-    host='localhost',
-    port='5432'
+    database=config['DATABASE']['DBName'],
+    user=config['DATABASE']['user'],
+    password=config['DATABASE']['password'],
+    host=config['DATABASE']['host'],
+    port=config['DATABASE']['port']
 )
 
 def get_card_encode(user_id, card_number):
@@ -496,16 +500,6 @@ def get_region_id(user_id):
         logger_app.error("/database_connection/dbcon.py\nMethod: get_region_id\n" + str(e))
 
 
-def set_region_id(user_id, region_id):
-    try:
-        script = 'UPDATE app_users SET code_region=(%s) WHERE user_id=(%s);'
-        cur = conn.cursor()
-        cur.execute(script, (region_id, str(user_id)))
-        conn.commit()
-    except(Exception, Error) as e:
-        logger_app.error("/database_connection/dbcon.py\nMethod: set_region_id\n" + str(e))
-
-
 def get_region(code, lang):
     try:
         script = 'SELECT "NAME" FROM "REGIONS" WHERE "CODE"=(%s) and "CODE_LANG"=(%s);'
@@ -712,7 +706,7 @@ def get_user(user_id):
         script = 'SELECT * FROM app_users WHERE user_id=(%s);'
         cur = conn.cursor()
         cur.execute(script, (str(user_id),))
-        return cur.fetchone() is not None
+        return cur.fetchone()
     except(Exception, Error) as e:
         logger_app.error("/database_connection/dbcon.py\nMethod: get_user\n" + str(e))
 

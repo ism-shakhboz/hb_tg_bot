@@ -4,24 +4,25 @@ from vars import states, markups
 from database_connection.dbcon import *
 import requests
 import uuid
+import configparser
 
-
-import handlers
+config = configparser.ConfigParser()
+config.read("config.ini")
 
 payload = {
 
-          "username": "batirov",
-          "password": "bank_09012+-"
+          "username": config['LEGAL_ENTITY_BILLS']['username'],
+          "password": config['LEGAL_ENTITY_BILLS']['password']
     }
 
 def send_get_token(payload):
-    r = requests.post('http://10.12.16.76:7079/getToken', json=payload).json()
+    r = requests.post(config['LEGAL_ENTITY_BILLS']['getToken'], json=payload).json()
     return r
 
 
 def send_get_accountTurnOver(accountTurnover):
     
-    r = requests.get('http://10.12.16.76:7079/1.0.0/accountTurnover/'+accountTurnover[5]+'?codeCoa='+accountTurnover[2]+'&filialCode='+accountTurnover[3]+'&accExternal='+accountTurnover[4]+'&clientCode='+accountTurnover[6]+'', headers={'content-type': 'application/json', 'Authorization':'Bearer '+send_get_token(payload)['token'], 'requestId': str(uuid.uuid4())}).json()
+    r = requests.get(config['LEGAL_ENTITY_BILLS']['accountTurnover']+accountTurnover[5]+'?codeCoa='+accountTurnover[2]+'&filialCode='+accountTurnover[3]+'&accExternal='+accountTurnover[4]+'&clientCode='+accountTurnover[6]+'', headers={'content-type': 'application/json', 'Authorization':'Bearer '+send_get_token(payload)['token'], 'requestId': str(uuid.uuid4())}).json()
     
     return r
 
