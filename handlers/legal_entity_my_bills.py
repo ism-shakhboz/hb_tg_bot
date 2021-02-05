@@ -1,9 +1,12 @@
 from misc import dp, bot, logger_app
 from aiogram import types
 from vars import states, markups
-from database_connection.dbcon import *
+from database_connection.dbcon import get_lang, set_user_state, get_user_state, get_dict, get_log, update_log, legal_entityAccountTurnover, conn
 import requests
 import uuid
+
+
+import handlers
 
 payload = {
 
@@ -30,10 +33,10 @@ async def legal_entity_bills(message: types.Message):
         update_log(user_id, get_log(user_id) + message.text)
         if message.text == get_dict('back', d):
             await bot.send_message(user_id, get_dict('legal_entity_hint', d), reply_markup=markups.legal_entity(d))
-            User().set_user_state(user_id, states.S_LEGAL_ENTITY)
+            set_user_state(user_id, states.S_LEGAL_ENTITY)
         elif message.text == get_dict('main_menu', d):
             await bot.send_message(user_id, get_dict('main_menu_hint', d), reply_markup=markups.main_menu(d))
-            User().set_user_state(user_id, states.S_GET_MAIN_MENU)
+            set_user_state(user_id, states.S_GET_MAIN_MENU)
         elif message.text == get_dict('balance_state', d):
             str_get = ''
             #accountTurnover = legal_entityAccountTurnover(163302497)

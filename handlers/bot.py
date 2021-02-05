@@ -1,10 +1,17 @@
+from psycopg2._psycopg import Error
 from misc import dp, bot, logger_app
 from aiogram import types
 from vars import states, markups
 from config import send_sms
+import datetime as dt
+import svgate
 from aiogram.types import ReplyKeyboardRemove
 from random import randint
-from database_connection.dbcon import *
+import json
+from database_connection.dbcon import add_user, get_user, set_user_state, get_user_state, set_lang, get_lang, get_dict, \
+    set_phone_number, set_code, get_code, get_phone_number, set_log, conn, update, get_news, update_log, get_log, \
+    get_user_status, get_card_json, set_user_unique_code, get_user_unique_code, playmobile_insert, image_insert, get_buttons, update_user_status, set_timer_sms
+
 
 @dp.message_handler(content_types=['photo'])
 async def image(message: types.Message):
@@ -19,21 +26,23 @@ async def start(message: types.Message):
         first_name = message.from_user.first_name
         last_name = message.from_user.last_name
         username = message.from_user.username
-        user = User().getter(user_id)
+        user = get_user(user_id)
 
-        if user is None:
+        if user is False:
             await bot.send_message(user_id, "Выберите язык / Tilni tanlang / Тилни танланг",
                                    reply_markup=markups.lang_m)
-            User().add_user(user_id, '', first_name, last_name, username, states.S_START)
+            add_user(user_id, '', first_name, last_name, username, states.S_START)
         else:
-            if get_user_status(user_id) == '0':
+            status = get_user_status(user_id)
+            if get_user_status(user_id)=='0':
+              
                 await bot.send_message(user_id, "Выберите язык / Tilni tanlang / Тилни танланг", reply_markup=markups.lang_m)
-                User().set_user_state(user_id, states.S_START)
+                set_user_state(user_id, states.S_START)
             else:
                 d = get_lang(user_id)
              
                 await bot.send_message(user_id, get_dict('main_menu_hint', d), reply_markup=markups.main_menu(d))
-                User().set_user_state(user_id, states.S_GET_MAIN_MENU)
+                set_user_state(user_id, states.S_GET_MAIN_MENU)
         
     except Exception as e:
         logger_app.error("/handlers/bot.py\nMethod: start\n" + str(e))
@@ -44,17 +53,17 @@ async def lang(message: types.Message):
     try:
         user_id = message.from_user.id
         if message.text == "🇺🇿 O'zbekcha":
-            User().set_lang(user_id, 'uz')
+            set_lang(user_id, 'uz')
             await bot.send_message(user_id, get_dict('send_phone_number', 'uz'), reply_markup=markups.auth('uz'))
         elif message.text == "🇷🇺 Русский":
-            User().set_lang(user_id, 'ru')
+            set_lang(user_id, 'ru')
             await bot.send_message(user_id, get_dict('send_phone_number', 'ru'), reply_markup=markups.auth('ru'))
         elif message.text == "🇺🇿 Ўзбекча":
-            User().set_lang(user_id, 'cy')
+            set_lang(user_id, 'cy')
             await bot.send_message(user_id, get_dict('send_phone_number', 'cy'), reply_markup=markups.auth('cy'))
         else:
             await bot.send_message(message.from_user.id, "Tilni tanlang/Выберите язык", reply_markup=markups.lang_m)
-            User().set_user_state(user_id, states.S_START)
+            set_user_state(user_id, states.S_START)
     except Exception as e:
         logger_app.error("/handlers/bot.py\nMethod: lang\n" + str(e))
 
@@ -65,20 +74,20 @@ async def auth(message: types.Message):
     try:
         user_id = message.from_user.id
         d = get_lang(user_id)
-        User().set_phone_number(user_id, str(message.contact.phone_number).replace('+', ''))
-        User().set_timer_sms(user_id, str(dt.datetime.now() + dt.timedelta(minutes=1)))
+        set_phone_number(user_id, str(message.contact.phone_number).replace('+', ''))
+        set_timer_sms(user_id, str(dt.datetime.now() + dt.timedelta(minutes=1)))
         otp = randint(100000, 999999)
         if send_sms:
-            User().set_code(user_id, otp)
+            set_code(user_id, otp)
             script = 'SELECT "ID" FROM playmobile_report order by "ID" DESC LIMIT 1'
             cur = conn.cursor()
             cur.execute(script, (str(user_id),))
             svgate.get_sms(message.contact.phone_number, otp, (int(cur.fetchone()[0])+1))
             playmobile_insert(user_id, 'Message is: ' + str(otp), str(dt.datetime.now()))
         else:
-            User().set_code(user_id, '1111')
+            set_code(user_id, '1111')
         await bot.send_message(user_id, get_dict('sms_code', d), reply_markup = ReplyKeyboardRemove())
-        User().set_user_state(user_id, states.S_CONFIRM_NUMBER)
+        set_user_state(user_id, states.S_CONFIRM_NUMBER)
     except Exception as e:
         logger_app.error("/handlers/bot.py\nMethod: auth\n" + str(e))
 
@@ -87,6 +96,9 @@ async def auth(message: types.Message):
 async def confirm_number(message: types.Message):
     try:
         user_id = message.from_user.id
+        first_name = message.from_user.first_name
+        last_name = message.from_user.last_name
+        username = message.from_user.username
         d = get_lang(user_id)
         get_expire = 'SELECT expire FROM app_users where user_id=(%s);'
         cur = conn.cursor()
@@ -95,14 +107,16 @@ async def confirm_number(message: types.Message):
         if row[0] > dt.datetime.now():
             if message.text == str(get_code(user_id)):
                 set_log(user_id, get_phone_number(user_id))
-                User().set_status(user_id)
+                update_user_status(user_id)
                 await bot.send_message(user_id, get_dict('main_menu_hint', d), reply_markup=markups.main_menu(d))
-                User().set_user_state(user_id, states.S_GET_MAIN_MENU)
+                set_user_state(user_id, states.S_GET_MAIN_MENU)
             else:
                 await bot.send_message(user_id, get_dict('error_sms_code', d))
         else:
+         
             await bot.send_message(user_id, "Выберите язык / Tilni tanlang / Тилни танланг", reply_markup=markups.lang_m)
-            User().set_user_state(user_id, states.S_START)
+            set_user_state(user_id, states.S_START)
+           
     except Exception as e:
         logger_app.error("/handlers/bot.py\nMethod: confirm_number\n" + str(e))
 
@@ -115,31 +129,31 @@ async def main_menu(message: types.Message):
         update_log(user_id, get_log(user_id) + message.text)
         if message.text == get_dict('individual', d):
             await bot.send_message(user_id, get_dict('individual_hint', d), reply_markup=markups.individual(d))
-            User().set_user_state(user_id, states.S_INDIVIDUAL)
+            set_user_state(user_id, states.S_INDIVIDUAL)
         elif message.text == get_dict('legal_entity', d):
             await bot.send_message(user_id, get_dict('legal_entity_hint', d), reply_markup=markups.legal_entity(d))
-            User().set_user_state(user_id, states.S_LEGAL_ENTITY)
+            set_user_state(user_id, states.S_LEGAL_ENTITY)
         elif message.text == get_dict('payments', d):
             await bot.send_message(user_id, get_dict('payments_hint', d), reply_markup=markups.payments(d))
-            User().set_user_state(user_id, states.S_PAYMENTS)
+            set_user_state(user_id, states.S_PAYMENTS)
         elif message.text == get_dict('news', d):
             await bot.send_message(user_id, get_news(d))
         elif message.text == get_dict('general', d):
             await bot.send_message(user_id, get_dict('general_hint', d), reply_markup=markups.general(d))
-            User().set_user_state(user_id, states.S_GENERAL)
+            set_user_state(user_id, states.S_GENERAL)
         elif message.text == get_dict('settings', d):
             await bot.send_message(user_id, get_dict('section', d), reply_markup=markups.settings(d))
-            User().set_user_state(user_id, states.S_SETTINGS)
+            set_user_state(user_id, states.S_SETTINGS)
         elif message.text == get_dict('contact_bank', d):
             if markups.buttons(d, 'feedback')["keyboard"][0][0] is None or markups.buttons(d, 'feedback')["keyboard"][0][0]=='':
-                User().set_user_state(user_id, states.S_GET_MAIN_MENU)
+                set_user_state(user_id, states.S_GET_MAIN_MENU)
                 if get_buttons(d, 'feedback')[0][4]:
                     await bot.send_message(user_id, get_buttons(d, 'feedback')[0][2], reply_markup=markups.inline_keyboards(d, 'feedback', get_buttons(d, 'feedback')[0][0]))
                 else:
                     await bot.send_message(user_id, get_buttons(d, 'feedback')[0][2])
             else:
                 await bot.send_message(user_id, get_dict('section', d), reply_markup=markups.buttons(d, 'feedback'))
-                User().set_user_state(user_id, states.S_FEEDBACK)
+                set_user_state(user_id, states.S_FEEDBACK)
         else:
             await bot.send_message(user_id, get_dict('main_menu_hint', d))
     except Exception as e:

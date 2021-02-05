@@ -1,6 +1,9 @@
 from aiogram import types
-from misc import bot
-from database_connection.dbcon import *
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from misc import bot, dp, logger_app
+from database_connection.dbcon import get_dict, get_regions, get_districts, get_atms, get_minibanks, get_poll_url, \
+    get_phone_number, get_buttons, get_reply_markup, get_inline_markup, get_lang, update_log, get_log, set_user_state, \
+    get_state
 
 lang_m = types.ReplyKeyboardMarkup(resize_keyboard=True)
 lang_m.row("🇷🇺 Русский", "🇺🇿 O'zbekcha", "🇺🇿 Ўзбекча")
@@ -19,7 +22,7 @@ async def get_markups(table_name, message: types.Message):
                                            reply_markup=inline_keyboards(d, table_name, i[0]))
                 else:
                     await bot.send_message(user_id, i[2], reply_markup=reply_markup(d, i[3]))
-                User().set_user_state(user_id, get_state(d, i[0], table_name))
+                set_user_state(user_id, get_state(d, i[0], table_name))
             else:
                 j = j + 1
 

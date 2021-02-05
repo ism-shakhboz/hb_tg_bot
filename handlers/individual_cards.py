@@ -2,7 +2,9 @@
 from aiogram import types
 from vars import states, markups
 from cryptography.fernet import Fernet
-from database_connection.dbcon import *
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from database_connection.dbcon import get_lang, set_user_state, get_user_state, get_dict, get_log, update_log, \
+    get_card_json, get_phone_number, update, get_buttons, get_state, conn, set_session_id, get_session_id, authCard, get_card, get_all_cards
 import json
 import svgate
 
@@ -23,53 +25,53 @@ async def cards(message: types.Message):
                 cards=''
             else:
                 await bot.send_message(user_id, get_dict('card_check', d), reply_markup=markups.cards_menu(d))
-            User().set_user_state(user_id, states.S_CARD_MENU)
+            set_user_state(user_id, states.S_CARD_MENU)
         elif message.text == get_dict('uzcard', d):
             if markups.buttons(d, 'individual_cards_uzcard')["keyboard"][0][0] is None or markups.buttons(d, 'individual_cards_uzcard')["keyboard"][0][0] == '':
-                User().set_user_state(user_id, states.S_CARD)
+                set_user_state(user_id, states.S_CARD)
                 if get_buttons(d, 'individual_cards_uzcard')[0][4]:
                     await bot.send_message(user_id, get_buttons(d, 'individual_cards_uzcard')[0][2], reply_markup=markups.inline_keyboards(d, 'individual_cards_uzcard', get_buttons(d,'individual_cards_uzcard')[0][0]))
                 else:
                     await bot.send_message(user_id, get_buttons(d, 'individual_cards_uzcard')[0][2])
             else:
                 await bot.send_message(user_id, get_dict('section', d), reply_markup=markups.buttons(d, 'individual_cards_uzcard'))
-                User().set_user_state(user_id, states.S_UZCARD)
+                set_user_state(user_id, states.S_UZCARD)
         elif message.text == get_dict('humo', d):
             if markups.buttons(d, 'individual_cards_humo')["keyboard"][0][0] is None or markups.buttons(d, 'individual_cards_humo')["keyboard"][0][0] == '':
-                User().set_user_state(user_id, states.S_CARD)
+                set_user_state(user_id, states.S_CARD)
                 if get_buttons(d, 'individual_cards_humo')[0][4]:
                     await bot.send_message(user_id, get_buttons(d, 'individual_cards_humo')[0][2], reply_markup=markups.inline_keyboards(d, 'individual_cards_humo', get_buttons(d,'individual_cards_humo')[0][0]))
                 else:
                     await bot.send_message(user_id, get_buttons(d, 'individual_cards_humo')[0][2])
             else:
                 await bot.send_message(user_id, get_dict('section', d), reply_markup=markups.buttons(d, 'individual_cards_humo'))
-                User().set_user_state(user_id, states.S_HUMO)
+                set_user_state(user_id, states.S_HUMO)
         elif message.text == get_dict('visa', d):
             if markups.buttons(d, 'individual_cards_visa')["keyboard"][0][0] is None or markups.buttons(d, 'individual_cards_visa')["keyboard"][0][0] == '':
-                User().set_user_state(user_id, states.S_CARD)
+                set_user_state(user_id, states.S_CARD)
                 if get_buttons(d, 'individual_cards_visa')[0][4]:
                     await bot.send_message(user_id, get_buttons(d, 'individual_cards_visa')[0][2], reply_markup=markups.inline_keyboards(d, 'individual_cards_visa', get_buttons(d,'individual_cards_visa')[0][0]))
                 else:
                     await bot.send_message(user_id, get_buttons(d, 'individual_cards_visa')[0][2])
             else:
                 await bot.send_message(user_id, get_dict('section', d), reply_markup=markups.buttons(d, 'individual_cards_visa'))
-                User().set_user_state(user_id, states.S_VISA)
+                set_user_state(user_id, states.S_VISA)
         elif message.text == get_dict('union_pay', d):
             if markups.buttons(d, 'individual_cards_unionpay')["keyboard"][0][0] is None or markups.buttons(d, 'individual_cards_unionpay')["keyboard"][0][0] == '':
-                User().set_user_state(user_id, states.S_CARD)
+                set_user_state(user_id, states.S_CARD)
                 if get_buttons(d, 'individual_cards_unionpay')[0][4]:
                     await bot.send_message(user_id, get_buttons(d, 'individual_cards_unionpay')[0][2], reply_markup=markups.inline_keyboards(d, 'individual_cards_unionpay', get_buttons(d,'individual_cards_unionpay')[0][0]))
                 else:
                     await bot.send_message(user_id, get_buttons(d, 'individual_cards_unionpay')[0][2])
             else:
                 await bot.send_message(user_id, get_dict('section', d), reply_markup=markups.buttons(d, 'individual_cards_unionpay'))
-                User().set_user_state(user_id, states.S_UNION_PAY)
+                set_user_state(user_id, states.S_UNION_PAY)
         elif message.text == get_dict('main_menu', d):
             await bot.send_message(user_id, get_dict('main_menu_hint', d), reply_markup=markups.main_menu(d))
-            User().set_user_state(user_id, states.S_GET_MAIN_MENU)
+            set_user_state(user_id, states.S_GET_MAIN_MENU)
         elif message.text == get_dict('back', d):
             await bot.send_message(user_id, get_dict('individual_hint', d), reply_markup=markups.individual(d))
-            User().set_user_state(user_id, states.S_INDIVIDUAL)
+            set_user_state(user_id, states.S_INDIVIDUAL)
         else:
             await bot.send_message(user_id, get_dict('section', d))
     except Exception as e:
@@ -123,13 +125,13 @@ async def card_menu(message: types.Message):
                 await bot.send_message(user_id, get_dict('card_check', d))
         elif message.text == get_dict('add_new_card', d):
             await bot.send_message(user_id, get_dict('add_new_card_number', d), reply_markup=markups.cancel(d))
-            User().set_user_state(user_id, states.S_NEW_CARD_NUMBER)
+            set_user_state(user_id, states.S_NEW_CARD_NUMBER)
         elif message.text == get_dict('back', d):
             await bot.send_message(user_id, get_dict('section', d), reply_markup=markups.cards(d))
-            User().set_user_state(user_id, states.S_CARD)
+            set_user_state(user_id, states.S_CARD)
         elif message.text == get_dict('main_menu', d):
             await bot.send_message(user_id, get_dict('main_menu_hint', d), reply_markup=markups.main_menu(d))
-            User().set_user_state(user_id, states.S_GET_MAIN_MENU)
+            set_user_state(user_id, states.S_GET_MAIN_MENU)
         else:
             await bot.send_message(user_id, get_dict('section', d))
     except Exception as e:
@@ -148,14 +150,14 @@ async def new_card_number(message: types.Message):
             cur.execute(script, ('', user_id))
             conn.commit()
             await bot.send_message(user_id, get_dict('section', d), reply_markup=markups.cards_menu(d))
-            User().set_user_state(user_id, states.S_CARD_MENU)
+            set_user_state(user_id, states.S_CARD_MENU)
         elif str(message.text).isdecimal() and len(str(message.text)) == 16:
             script = 'UPDATE app_users SET new_card_number=(%s) WHERE user_id=(%s);'
             cur = conn.cursor()
             cur.execute(script, (str(message.text), user_id))
             conn.commit()
             await bot.send_message(user_id, get_dict('add_new_card_expiry', d), reply_markup=markups.cancel(d))
-            User().set_user_state(user_id, states.S_NEW_CARD_EXPIRY)
+            set_user_state(user_id, states.S_NEW_CARD_EXPIRY)
         else:
             await bot.send_message(user_id, get_dict('error_enter_card_number', d), reply_markup=markups.cancel(d))
     except Exception as e:
@@ -173,7 +175,7 @@ async def new_card_expiry(message: types.Message):
             cur.execute(script, ('', '', user_id))
             conn.commit()
             await bot.send_message(user_id, get_dict('section', d), reply_markup=markups.cards_menu(d))
-            User().set_user_state(user_id, states.S_CARD_MENU)
+            set_user_state(user_id, states.S_CARD_MENU)
         elif str(message.text).isdecimal() and len(str(message.text)) == 4:
             script = 'UPDATE app_users SET new_card_expiry=(%s) WHERE user_id=(%s);'
             cur = conn.cursor()
@@ -188,11 +190,11 @@ async def new_card_expiry(message: types.Message):
             errorCode = respJson['msgrespdata']['errorCode']
             if errorCode == '0':
                 await bot.send_message(user_id, get_dict('sms_code', d), reply_markup=markups.cancel(d))
-                User().set_session_id(user_id, respJson['msgrespdata']['response']['sessionId'])
-                User().set_user_state(user_id, states.S_SMS_TYPE_AUTH_CARD)
+                set_session_id(user_id, respJson['msgrespdata']['response']['sessionId'])
+                set_user_state(user_id, states.S_SMS_TYPE_AUTH_CARD)
             else:
                 await bot.send_message(user_id, get_dict('error_add_card', d), reply_markup=markups.cards_menu(d))
-                User().set_user_state(user_id, states.S_CARD_MENU)
+                set_user_state(user_id, states.S_CARD_MENU)
         else:
             await bot.send_message(user_id, get_dict('error_enter_card_expiry', d), reply_markup=markups.cancel(d))
     except Exception as e:
@@ -210,20 +212,20 @@ async def sms(message: types.Message):
         update_log(user_id, get_log(user_id) + message.text)
         if message.text == get_dict('cancel', d):
             await bot.send_message(user_id, get_dict('section', d), reply_markup=markups.cards_menu(d))
-            User().set_user_state(user_id, states.S_CARD_MENU)
+            set_user_state(user_id, states.S_CARD_MENU)
         else:
-            sessionId = (User().getter(user_id))['session_id']
+            sessionId = get_session_id(user_id)
             confirmCode = str(message.text)
             errorCode = (svgate.confirmOperationAuthCard(sessionId, confirmCode))['msgrespdata']['errorCode']
             
             if errorCode == '0':
                 cards=''
                 key = load_key()
-                encoded_card_number = ((User().getter(user_id))['new_card_number']).encode()
+                encoded_card_number = (get_card(user_id)[0]).encode()
                 f = Fernet(key)
                 encrypted_card_number = f.encrypt(encoded_card_number)
-                card_mask = ((User().getter(user_id))['new_card_number'])[:6] + '*' * 6 + ((User().getter(user_id))['new_card_number'])[-4:]
-                authCard(user_id, card_mask, (User().getter(user_id))['new_card_expiry'], str(encrypted_card_number))
+                card_mask = (get_card(user_id)[0])[:6] + '*' * 6 + (get_card(user_id)[0])[-4:]
+                authCard(user_id, card_mask, get_card(user_id)[1], str(encrypted_card_number))
                 
                 await bot.send_message(user_id, get_dict('added_new_card', d)+'\n', reply_markup=markups.cards_menu(d))
                 cardsList = get_card_json(user_id)
@@ -231,10 +233,10 @@ async def sms(message: types.Message):
                     cards = cards + card[1] + '\n'
                 await bot.send_message(user_id, get_dict('your_cards', d)+'\n\n'+cards, reply_markup=markups.cards_menu(d))
                 cards=''
-                User().set_user_state(user_id, states.S_CARD_MENU)
+                set_user_state(user_id, states.S_CARD_MENU)
             else:
                 await bot.send_message(user_id, get_dict('error_add_card', d), reply_markup=markups.cards_menu(d))
-                User().set_user_state(user_id, states.S_CARD_MENU)
+                set_user_state(user_id, states.S_CARD_MENU)
     except Exception as e:
         logger_app.error("/handlers/individual_cards.py\nMethod: new_card_number\n" + str(e))
         
