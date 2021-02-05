@@ -8,9 +8,7 @@ import svgate
 from aiogram.types import ReplyKeyboardRemove
 from random import randint
 import json
-from database_connection.dbcon import add_user, get_user, set_user_state, get_user_state, set_lang, get_lang, get_dict, \
-    set_phone_number, set_code, get_code, get_phone_number, set_log, conn, update, get_news, update_log, get_log, \
-    get_user_status, get_card_json, set_user_unique_code, get_user_unique_code, playmobile_insert, image_insert, get_buttons, update_user_status, set_timer_sms
+from database_connection.dbcon import *
 
 
 @dp.message_handler(content_types=['photo'])

@@ -3,8 +3,7 @@ from aiogram import types
 from vars import states, markups
 from cryptography.fernet import Fernet
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
-from database_connection.dbcon import get_lang, set_user_state, get_user_state, get_dict, get_log, update_log, \
-    get_card_json, get_phone_number, update, get_buttons, get_state, conn, set_session_id, get_session_id, authCard, get_card, get_all_cards
+from database_connection.dbcon import *
 import json
 import svgate
 

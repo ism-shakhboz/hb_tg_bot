@@ -1,8 +1,7 @@
 from misc import dp, bot, logger_app
 from aiogram import types
 from vars import states, markups
-from database_connection.dbcon import get_lang, set_user_state, get_user_state, get_dict, get_log, update_log, \
-    get_buttons
+from database_connection.dbcon import *
 
 
 @dp.message_handler(lambda message: get_user_state(message.from_user.id) == states.S_INDIVIDUAL)

@@ -2,9 +2,7 @@ from misc import dp, bot, logger_app
 from aiogram import types
 from vars import states, markups
 from os import path
-from database_connection.dbcon import get_lang, set_user_state, get_dict, get_log, update_log, get_region, \
-    get_branches, get_district, get_image, get_user_state, get_districts, get_region_id, set_region_id, code_branch_b, distinct_regions
-
+from database_connection.dbcon import *
 
 try:
     async def send_location(message, lang, user_id, code_region):
