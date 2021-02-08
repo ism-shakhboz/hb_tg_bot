@@ -7,10 +7,8 @@ import pytz
 import uuid
 import urllib.request
 from misc import logger_app
-from random import randint
+from misc import config
 
-config = configparser.ConfigParser()
-config.read("config.ini")
 
 proxies = {
         "http":config['PROXY']['url']

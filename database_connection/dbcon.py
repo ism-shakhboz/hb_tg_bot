@@ -2,15 +2,13 @@ import psycopg2
 from psycopg2 import Error, sql
 import svgate
 import json
-import configparser
 import urllib3
 import datetime as dt
 from misc import logger_app
+from misc import config
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-config = configparser.ConfigParser()
-config.read("config.ini")
 
 conn = psycopg2.connect(
     database=config['DATABASE']['DBName'],
@@ -210,7 +208,7 @@ def get_reply_markup(code_lang, state_id):
 def get_state(code_lang, name, table):
     try:
         cur = conn.cursor()
-        cur.execute(sql.SQL("SELECT name FROM state WHERE id=(SELECT state_id FROM {} WHERE code_lang=(%s) and name=("
+        cur.execute(sql.SQL("SELECT value FROM state WHERE id=(SELECT state_id FROM {} WHERE code_lang=(%s) and name=("
                             "%s))").format(sql.Identifier(table)), [code_lang, name])
         return cur.fetchone()[0]
     except(Exception, Error) as e:

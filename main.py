@@ -1,8 +1,5 @@
 from aiogram import executor
 from misc import dp
-import requests
-import random
-
 
 import handlers
 

@@ -1,9 +1,6 @@
 from aiogram import types
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
-from misc import bot, dp, logger_app
-from database_connection.dbcon import get_dict, get_regions, get_districts, get_atms, get_minibanks, get_poll_url, \
-    get_phone_number, get_buttons, get_reply_markup, get_inline_markup, get_lang, update_log, get_log, set_user_state, \
-    get_state
+from misc import bot
+from database_connection.dbcon import *
 
 lang_m = types.ReplyKeyboardMarkup(resize_keyboard=True)
 lang_m.row("🇷🇺 Русский", "🇺🇿 O'zbekcha", "🇺🇿 Ўзбекча")

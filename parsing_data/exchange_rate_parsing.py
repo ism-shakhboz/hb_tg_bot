@@ -1,10 +1,10 @@
 from urllib.request import urlopen
 from bs4 import BeautifulSoup
 import ssl
+from misc import config
 
-URL = "https://hamkorbank.uz/uz/exchange-rate/"
 
-uo = urlopen(URL, context=ssl.SSLContext())
+uo = urlopen(config['EXCHANGE_RATE']['url'], context=ssl.SSLContext())
 page = uo.read()
 soup = BeautifulSoup(page, "html.parser")
 divWrap = soup.find('div', {'class': 'exchangeRates__content--wraps-content'})

@@ -39,7 +39,6 @@ async def start(message: types.Message):
              
                 await bot.send_message(user_id, get_dict('main_menu_hint', d), reply_markup=markups.main_menu(d))
                 set_user_state(user_id, states.S_GET_MAIN_MENU)
-        
     except Exception as e:
         logger_app.error("/handlers/bot.py\nMethod: start\n" + str(e))
 

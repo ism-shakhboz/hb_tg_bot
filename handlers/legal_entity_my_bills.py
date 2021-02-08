@@ -4,10 +4,7 @@ from vars import states, markups
 from database_connection.dbcon import *
 import requests
 import uuid
-import configparser
-
-config = configparser.ConfigParser()
-config.read("config.ini")
+from misc import config
 
 payload = {
 
