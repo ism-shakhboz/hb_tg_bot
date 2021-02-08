@@ -462,7 +462,7 @@ def get_district(region_code, code_lang, code_district):
 
 def get_minibanks(region_code, code_lang):
     try:
-        script = 'SELECT * FROM "MINIBANK_BRANCHES" WHERE "FK_ID_REGION"=(SELECT "ID" FROM "REGIONS" WHERE "CODE"=(' \
+        script = 'SELECT "NAME" FROM "MINIBANK_BRANCHES" WHERE "FK_ID_REGION"=(SELECT "ID" FROM "REGIONS" WHERE "CODE"=(' \
                  '%s) AND "CODE_LANG"=(%s));'
         cur = conn.cursor()
         cur.execute(script, (region_code, code_lang))
@@ -474,7 +474,7 @@ def get_minibanks(region_code, code_lang):
 
 def get_atms(region_code, code_lang):
     try:
-        script = 'SELECT * FROM "ATM_BRANCHES" WHERE "FK_ID_REGION"=(SELECT "ID" FROM "REGIONS" WHERE "CODE"=(%s) AND ' \
+        script = 'SELECT "NAME" FROM "ATM_BRANCHES" WHERE "FK_ID_REGION"=(SELECT "ID" FROM "REGIONS" WHERE "CODE"=(%s) AND ' \
                  '"CODE_LANG"=(%s));'
         cur = conn.cursor()
         cur.execute(script, (region_code, code_lang))
@@ -486,7 +486,7 @@ def get_atms(region_code, code_lang):
 
 def get_districts(region_code, code_lang):
     try:
-        script = 'SELECT * FROM "DISTRICTS" WHERE "FK_ID_REGION"=(SELECT "ID" FROM "REGIONS" WHERE "CODE"=(%s) AND ' \
+        script = 'SELECT "NAME" FROM "DISTRICTS" WHERE "FK_ID_REGION"=(SELECT "ID" FROM "REGIONS" WHERE "CODE"=(%s) AND ' \
                  '"CODE_LANG"=(%s));'
         cur = conn.cursor()
         cur.execute(script, (region_code, code_lang))

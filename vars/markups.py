@@ -6,6 +6,37 @@ lang_m = types.ReplyKeyboardMarkup(resize_keyboard=True)
 lang_m.row("🇷🇺 Русский", "🇺🇿 O'zbekcha", "🇺🇿 Ўзбекча")
 
 
+def markup_maker(List, d):
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    count = 0
+    c = []
+    tup = []
+    for i in List:
+        tup.append(i[0])
+
+    if len(tup) % 2 != 0:
+        for i in tup:
+            if i != tup[-1]:
+                c.append(i)
+                count = count + 1
+                if count == 2:
+                    markup.row(c[0], c[1])
+                    c.clear()
+                    count = 0
+            else:
+                c.append(i)
+                markup.row(c[0])
+    else:
+        for i in tup:
+            c.append(i)
+            count = count + 1
+            if count == 2:
+                markup.row(c[0], c[1])
+                c.clear()
+                count = 0
+    markup.row(get_dict('main_menu', d), get_dict('back', d))
+    return markup
+
 async def get_markups(table_name, message: types.Message):
     try:
         user_id = message.from_user.id
@@ -100,19 +131,16 @@ def buttons(lang, table_name):
                 count = 0
     return markup
 
-
 def auth(d):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
     contact = types.KeyboardButton(text=get_dict('send', d), request_contact=True)
     markup.add(contact)
     return markup
 
-
 def cancel(d):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     markup.row(get_dict('cancel', d))
     return markup
-
 
 def repayment_of_loans_bank_type(d):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
@@ -121,145 +149,31 @@ def repayment_of_loans_bank_type(d):
     markup.row(get_dict('back', d))
     return markup
 
-
 def payment_mobile_operators(user_id, d):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     markup.row(get_phone_number(user_id))
     markup.row(get_dict('cancel', d))
     return markup
 
-
 def minibank(code, d):
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    count = 0
-    c = []
-    tup = []
     List = get_minibanks(code, d)
-    for i in List:
-        tup.append(i[3])
-
-    if len(tup) % 2 != 0:
-        for i in tup:
-            if i != tup[-1]:
-                c.append(i)
-                count = count + 1
-                if count == 2:
-                    markup.row(c[0], c[1])
-                    c.clear()
-                    count = 0
-            else:
-                c.append(i)
-                markup.row(c[0])
-    else:
-        for i in tup:
-            c.append(i)
-            count = count + 1
-            if count == 2:
-                markup.row(c[0], c[1])
-                c.clear()
-                count = 0
-    markup.row(get_dict('main_menu', d), get_dict('back', d))
-    return markup
-
+    m = markup_maker(List, d)
+    return m
 
 def atm(code, d):
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    count = 0
-    c = []
-    tup = []
     List = get_atms(code, d)
-    for i in List:
-        tup.append(i[3])
-
-    if len(tup) % 2 != 0:
-        for i in tup:
-            if i != tup[-1]:
-                c.append(i)
-                count = count + 1
-                if count == 2:
-                    markup.row(c[0], c[1])
-                    c.clear()
-                    count = 0
-            else:
-                c.append(i)
-                markup.row(c[0])
-    else:
-        for i in tup:
-            c.append(i)
-            count = count + 1
-            if count == 2:
-                markup.row(c[0], c[1])
-                c.clear()
-                count = 0
-    markup.row(get_dict('main_menu', d), get_dict('back', d))
-    return markup
-
+    m = markup_maker(List, d)
+    return m
 
 def districts(code, d):
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    count = 0
-    c = []
-    tup = []
     List = get_districts(code, d)
-    for i in List:
-        tup.append(i[3])
-
-    if len(tup) % 2 != 0:
-        for i in tup:
-            if i != tup[-1]:
-                c.append(i)
-                count = count + 1
-                if count == 2:
-                    markup.row(c[0], c[1])
-                    c.clear()
-                    count = 0
-            else:
-                c.append(i)
-                markup.row(c[0])
-    else:
-        for i in tup:
-            c.append(i)
-            count = count + 1
-            if count == 2:
-                markup.row(c[0], c[1])
-                c.clear()
-                count = 0
-    markup.row(get_dict('main_menu', d), get_dict('back', d))
-    return markup
-
+    m = markup_maker(List, d)
+    return m
 
 def regions(d):
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    count = 0
-    c = []
-    tup = []
     List = get_regions(d)
-    for i in List:
-        tup.append(i[0])
-
-    if len(tup) % 2 != 0:
-        for i in tup:
-            if i != tup[-1]:
-                c.append(i)
-                count = count + 1
-                if count == 2:
-                    markup.row(c[0], c[1])
-                    c.clear()
-                    count = 0
-            else:
-                c.append(i)
-                markup.row(c[0])
-    else:
-        for i in tup:
-            c.append(i)
-            count = count + 1
-            if count == 2:
-                markup.row(c[0], c[1])
-                c.clear()
-                count = 0
-    markup.row(get_dict('main_menu', d), get_dict('back', d))
-    return markup
-
+    m = markup_maker(List, d)
+    return m
 
 def cost(d):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
