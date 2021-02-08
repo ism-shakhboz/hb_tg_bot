@@ -214,6 +214,15 @@ def get_state(code_lang, name, table):
     except(Exception, Error) as e:
         logger_app.error("/database_connection/dbcon.py\nMethod: get_state\n" + str(e))
 
+def get_state_by_key(key):
+    try:
+        script = 'SELECT value FROM state WHERE key=(%s);'
+        cur = conn.cursor()
+        cur.execute(script, (key,))
+        row = cur.fetchone()
+        return row[0]
+    except(Exception, Error) as e:
+        logger_app.error("/database_connection/dbcon.py\nMethod: get_state_by_key\n" + str(e))
 
 def get_user_state(user_id):
     try:

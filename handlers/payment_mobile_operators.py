@@ -7,7 +7,7 @@ import svgate
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from database_connection.dbcon import *
 
-@dp.message_handler(lambda message: get_user_state(message.from_user.id) == states.S_PAYMENT_MOBILE_OPERATORS)
+@dp.message_handler(lambda message: get_user_state(message.from_user.id) == get_state_by_key('S_PAYMENT_MOBILE_OPERATORS'))
 async def mobile_operators(message: types.Message):
     try:
         user_id = message.from_user.id
@@ -18,23 +18,23 @@ async def mobile_operators(message: types.Message):
         update_log(user_id, get_log(user_id) + message.text)
         if message.text == get_dict('cancel', d):
             await bot.send_message(user_id, get_dict('section', d), reply_markup=markups.payments(d))
-            set_user_state(user_id, states.S_PAYMENTS)
+            set_user_state(user_id, get_state_by_key('S_PAYMENTS'))
         elif (str(message.text).startswith('+998') and len(str(message.text)) == 13) or (
                 str(message.text).startswith('998') and len(str(message.text)) == 12):
             mobile_payment_report_commit(user_id, first_name, last_name, str(message.text).replace('+', ''), str(dt.datetime.now()))
             set_mobile_payment_oper_id_app_user(user_id, (get_mobile_payment_oper_id(user_id)[0]))
-            set_user_state(user_id, states.S_TYPE_SUM_MOBILE_PAYMENT)
+            set_user_state(user_id, get_state_by_key('S_TYPE_SUM_MOBILE_PAYMENT'))
             await bot.send_message(user_id, get_dict('enter_amount', d), reply_markup=markups.cancel(d))
         else:
             await bot.send_message(user_id, get_dict('phone_number_error', d), reply_markup=markups.payment_mobile_operators(user_id, d))
-            set_user_state(user_id, states.S_PAYMENT_MOBILE_OPERATORS)
+            set_user_state(user_id, get_state_by_key('S_PAYMENT_MOBILE_OPERATORS'))
     except Exception as e:
         logger_app.error("/handlers/payments.py\nMethod: mobile_operators\n" + str(e))
 
 def load_key():
     return open("secretCardDecodeKey.key", "rb").read()
 
-@dp.message_handler(lambda message: get_user_state(message.from_user.id) == states.S_TYPE_SUM_MOBILE_PAYMENT)
+@dp.message_handler(lambda message: get_user_state(message.from_user.id) == get_state_by_key('S_TYPE_SUM_MOBILE_PAYMENT'))
 async def enter_amount(message: types.Message):
     try:
         user_id = message.from_user.id
@@ -43,7 +43,7 @@ async def enter_amount(message: types.Message):
         if str(message.text).isnumeric():
             if float(message.text)<500:
                 await bot.send_message(user_id, get_dict('minimum_sum_mobile_payment', d))
-                set_user_state(user_id, states.S_TYPE_SUM_MOBILE_PAYMENT)
+                set_user_state(user_id, get_state_by_key('S_TYPE_SUM_MOBILE_PAYMENT'))
             else:
                 set_mobile_payment_amount((get_mobile_payment_oper_id(user_id)[0]), float(str(message.text)))
                 res = get_dict('choose_card', d)
@@ -57,7 +57,7 @@ async def enter_amount(message: types.Message):
                     await bot.send_message(user_id, get_dict('card_check', d))   
         elif message.text == get_dict('cancel', d):
             await bot.send_message(user_id, get_dict('section', d), reply_markup=markups.payments(d))
-            set_user_state(user_id, states.S_PAYMENTS)
+            set_user_state(user_id, get_state_by_key('S_PAYMENTS'))
         else:
             await bot.send_message(user_id, get_dict('error_enter_amount_p2p', d), reply_markup=markups.cancel(d))
     except Exception as e:
@@ -82,7 +82,7 @@ async def mp(callback_query: types.CallbackQuery):
             await bot.edit_message_text(chat_id=callback_query.message.chat.id,
                                         message_id=callback_query.message.message_id, text=get_dict('section', d),
                                         reply_markup=markups.payments(d))
-            set_user_state(user_id, states.S_PAYMENTS)
+            set_user_state(user_id, get_state_by_key('S_PAYMENTS'))
         else:
             access = InlineKeyboardMarkup().add(InlineKeyboardButton(get_dict('confirm', d), callback_data="0"))
             res = get_dict('confirm_transfer_card_to_card', d) + ' ' + callback_query.data[2:] + "\n" + get_dict('to_phone_number', d) + ': ' + get_to_phone_number_oper(user_id)[0] + '\n' + get_dict('amount', d) + ' ' + "{:,.2f}".format((int(get_amount_from_user_mobile_payment_oper(user_id)[0]))) +' '+get_dict('sum', d)
@@ -110,7 +110,7 @@ async def accessPayment(callback_query: types.CallbackQuery):
         if errorCode["msgrespdata"]["errorCode"] == "0":
             await bot.delete_message(callback_query.message.chat.id, callback_query.message.message_id)
             await bot.send_message(callback_query.from_user.id, get_dict('sms_code', d), reply_markup=markups.cancel(d))
-            set_user_state(user_id, states.S_SMS_TYPE_MOBILE_PAYMENT)
+            set_user_state(user_id, get_state_by_key('S_SMS_TYPE_MOBILE_PAYMENT'))
             set_session_id(user_id, errorCode['msgrespdata']['response']['sessionId'])
             
         else:
@@ -118,11 +118,11 @@ async def accessPayment(callback_query: types.CallbackQuery):
             await bot.delete_message(callback_query.message.chat.id, callback_query.message.message_id)
             await bot.send_message(callback_query.from_user.id, get_dict('section', d),
                                    reply_markup=markups.payments(d))
-            set_user_state(user_id, states.S_PAYMENTS)
+            set_user_state(user_id, get_state_by_key('S_PAYMENTS'))
     except Exception as e:
         logger_app.error("/handlers/money_transfer.py\nMethod: accessPayment\n" + str(e))
 
-@dp.message_handler(lambda message: get_user_state(message.from_user.id) == states.S_SMS_TYPE_MOBILE_PAYMENT)
+@dp.message_handler(lambda message: get_user_state(message.from_user.id) == get_state_by_key('S_SMS_TYPE_MOBILE_PAYMENT'))
 async def sms(message: types.Message):
     try:
         user_id = message.from_user.id
@@ -130,7 +130,7 @@ async def sms(message: types.Message):
         update_log(user_id, get_log(user_id) + message.text)
         if message.text == get_dict('cancel', d):
             await bot.send_message(user_id, get_dict('section', d), reply_markup=markups.payments(d))
-            set_user_state(user_id, states.S_PAYMENTS)
+            set_user_state(user_id, get_state_by_key('S_PAYMENTS'))
         else:
             sessionId = get_session_id(user_id)
             confirmCode = str(message.text)
@@ -139,10 +139,10 @@ async def sms(message: types.Message):
             if errorCode == '0':
                 await bot.send_message(user_id, get_dict('success_transfer_card_to_card', d),
                                        reply_markup=markups.payments(d))
-                set_user_state(user_id, states.S_PAYMENTS)
+                set_user_state(user_id, get_state_by_key('S_PAYMENTS'))
             else:
                 await bot.send_message(user_id, get_dict('error_payment', d),
                                        reply_markup=markups.payments(d))
-                set_user_state(user_id, states.S_PAYMENTS)
+                set_user_state(user_id, get_state_by_key('S_PAYMENTS'))
     except Exception as e:
         logger_app.error("/handlers/individual_cards.py\nMethod: new_card_number\n" + str(e))

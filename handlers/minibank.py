@@ -20,7 +20,7 @@ except Exception as e:
     logger_app.error("/handlers/atm.py\nMethod: send_location\n" + str(e))
 
 
-@dp.message_handler(lambda message: get_user_state(message.from_user.id) == states.S_MINI_BANK)
+@dp.message_handler(lambda message: get_user_state(message.from_user.id) == get_state_by_key('S_MINI_BANK'))
 async def minibank(message: types.Message):
     try:
         user_id = message.from_user.id
@@ -29,10 +29,10 @@ async def minibank(message: types.Message):
         i = 0
         if message.text == get_dict('back', d):
             await bot.send_message(user_id, get_dict('main_menu_hint', d), reply_markup=markups.branches(d))
-            set_user_state(user_id, states.S_BRANCH)
+            set_user_state(user_id, get_state_by_key('S_BRANCH'))
         elif message.text == get_dict('main_menu', d):
             await bot.send_message(user_id, get_dict('section', d), reply_markup=markups.main_menu(d))
-            set_user_state(user_id, states.S_GET_MAIN_MENU)
+            set_user_state(user_id, get_state_by_key('S_GET_MAIN_MENU'))
         else:
             while i < len(distinct_regions()):
                 if message.text == get_region(distinct_regions()[i][0], d):
@@ -54,10 +54,10 @@ async def minibank_and(message: types.Message):
 
         if message.text == get_dict('back', d):
             await bot.send_message(user_id, get_dict('section', d), reply_markup=markups.regions(d))
-            set_user_state(user_id, states.S_MINI_BANK)
+            set_user_state(user_id, get_state_by_key('S_MINI_BANK'))
         elif message.text == get_dict('main_menu', d):
             await bot.send_message(user_id, get_dict('main_menu_hint', d), reply_markup=markups.main_menu(d))
-            set_user_state(user_id, states.S_GET_MAIN_MENU)
+            set_user_state(user_id, get_state_by_key('S_GET_MAIN_MENU'))
         else:
             await send_location(message.text, d, user_id, '03')
     except Exception as e:
@@ -72,10 +72,10 @@ async def minibank_buk(message: types.Message):
         update_log(user_id, get_log(user_id) + message.text)
         if message.text == get_dict('back', d):
             await bot.send_message(user_id, get_dict('section', d), reply_markup=markups.regions(d))
-            set_user_state(user_id, states.S_MINI_BANK)
+            set_user_state(user_id, get_state_by_key('S_MINI_BANK'))
         elif message.text == get_dict('main_menu', d):
             await bot.send_message(user_id, get_dict('main_menu_hint', d), reply_markup=markups.main_menu(d))
-            set_user_state(user_id, states.S_GET_MAIN_MENU)
+            set_user_state(user_id, get_state_by_key('S_GET_MAIN_MENU'))
         else:
             await send_location(message.text, d, user_id, '06')
     except Exception as e:
@@ -90,10 +90,10 @@ async def minibank_fer(message: types.Message):
         update_log(user_id, get_log(user_id) + message.text)
         if message.text == get_dict('back', d):
             await bot.send_message(user_id, get_dict('section', d), reply_markup=markups.regions(d))
-            set_user_state(user_id, states.S_MINI_BANK)
+            set_user_state(user_id, get_state_by_key('S_MINI_BANK'))
         elif message.text == get_dict('main_menu', d):
             await bot.send_message(user_id, get_dict('main_menu_hint', d), reply_markup=markups.main_menu(d))
-            set_user_state(user_id, states.S_GET_MAIN_MENU)
+            set_user_state(user_id, get_state_by_key('S_GET_MAIN_MENU'))
         else:
             await send_location(message.text, d, user_id, '30')
     except Exception as e:
@@ -108,10 +108,10 @@ async def minibank_jiz(message: types.Message):
         update_log(user_id, get_log(user_id) + message.text)
         if message.text == get_dict('back', d):
             await bot.send_message(user_id, get_dict('section', d), reply_markup=markups.regions(d))
-            set_user_state(user_id, states.S_MINI_BANK)
+            set_user_state(user_id, get_state_by_key('S_MINI_BANK'))
         elif message.text == get_dict('main_menu', d):
             await bot.send_message(user_id, get_dict('main_menu_hint', d), reply_markup=markups.main_menu(d))
-            set_user_state(user_id, states.S_GET_MAIN_MENU)
+            set_user_state(user_id, get_state_by_key('S_GET_MAIN_MENU'))
         else:
             await send_location(message.text, d, user_id, '08')
     except Exception as e:
@@ -126,10 +126,10 @@ async def minibank_nam(message: types.Message):
         update_log(user_id, get_log(user_id) + message.text)
         if message.text == get_dict('back', d):
             await bot.send_message(user_id, get_dict('section', d), reply_markup=markups.regions(d))
-            set_user_state(user_id, states.S_MINI_BANK)
+            set_user_state(user_id, get_state_by_key('S_MINI_BANK'))
         elif message.text == get_dict('main_menu', d):
             await bot.send_message(user_id, get_dict('main_menu_hint', d), reply_markup=markups.main_menu(d))
-            set_user_state(user_id, states.S_GET_MAIN_MENU)
+            set_user_state(user_id, get_state_by_key('S_GET_MAIN_MENU'))
         else:
             await send_location(message.text, d, user_id, '14')
     except Exception as e:
@@ -144,10 +144,10 @@ async def minibank_nav(message: types.Message):
         update_log(user_id, get_log(user_id) + message.text)
         if message.text == get_dict('back', d):
             await bot.send_message(user_id, get_dict('section', d), reply_markup=markups.regions(d))
-            set_user_state(user_id, states.S_MINI_BANK)
+            set_user_state(user_id, get_state_by_key('S_MINI_BANK'))
         elif message.text == get_dict('main_menu', d):
             await bot.send_message(user_id, get_dict('main_menu_hint', d), reply_markup=markups.main_menu(d))
-            set_user_state(user_id, states.S_GET_MAIN_MENU)
+            set_user_state(user_id, get_state_by_key('S_GET_MAIN_MENU'))
         else:
             await send_location(message.text, d, user_id, '12')
     except Exception as e:
@@ -162,10 +162,10 @@ async def minibank_kash(message: types.Message):
         update_log(user_id, get_log(user_id) + message.text)
         if message.text == get_dict('back', d):
             await bot.send_message(user_id, get_dict('section', d), reply_markup=markups.regions(d))
-            set_user_state(user_id, states.S_MINI_BANK)
+            set_user_state(user_id, get_state_by_key('S_MINI_BANK'))
         elif message.text == get_dict('main_menu', d):
             await bot.send_message(user_id, get_dict('main_menu_hint', d), reply_markup=markups.main_menu(d))
-            set_user_state(user_id, states.S_GET_MAIN_MENU)
+            set_user_state(user_id, get_state_by_key('S_GET_MAIN_MENU'))
         else:
             await send_location(message.text, d, user_id, '10')
     except Exception as e:
@@ -180,10 +180,10 @@ async def minibank_kar(message: types.Message):
         update_log(user_id, get_log(user_id) + message.text)
         if message.text == get_dict('back', d):
             await bot.send_message(user_id, get_dict('section', d), reply_markup=markups.regions(d))
-            set_user_state(user_id, states.S_MINI_BANK)
+            set_user_state(user_id, get_state_by_key('S_MINI_BANK'))
         elif message.text == get_dict('main_menu', d):
             await bot.send_message(user_id, get_dict('main_menu_hint', d), reply_markup=markups.main_menu(d))
-            set_user_state(user_id, states.S_GET_MAIN_MENU)
+            set_user_state(user_id, get_state_by_key('S_GET_MAIN_MENU'))
         else:
             await send_location(message.text, d, user_id, '35')
     except Exception as e:
@@ -198,10 +198,10 @@ async def minibank_sam(message: types.Message):
         update_log(user_id, get_log(user_id) + message.text)
         if message.text == get_dict('back', d):
             await bot.send_message(user_id, get_dict('section', d), reply_markup=markups.regions(d))
-            set_user_state(user_id, states.S_MINI_BANK)
+            set_user_state(user_id, get_state_by_key('S_MINI_BANK'))
         elif message.text == get_dict('main_menu', d):
             await bot.send_message(user_id, get_dict('main_menu_hint', d), reply_markup=markups.main_menu(d))
-            set_user_state(user_id, states.S_GET_MAIN_MENU)
+            set_user_state(user_id, get_state_by_key('S_GET_MAIN_MENU'))
         else:
             await send_location(message.text, d, user_id, '18')
     except Exception as e:
@@ -216,10 +216,10 @@ async def minibank_sur(message: types.Message):
         update_log(user_id, get_log(user_id) + message.text)
         if message.text == get_dict('back', d):
             await bot.send_message(user_id, get_dict('section', d), reply_markup=markups.regions(d))
-            set_user_state(user_id, states.S_MINI_BANK)
+            set_user_state(user_id, get_state_by_key('S_MINI_BANK'))
         elif message.text == get_dict('main_menu', d):
             await bot.send_message(user_id, get_dict('main_menu_hint', d), reply_markup=markups.main_menu(d))
-            set_user_state(user_id, states.S_GET_MAIN_MENU)
+            set_user_state(user_id, get_state_by_key('S_GET_MAIN_MENU'))
         else:
             await send_location(message.text, d, user_id, '22')
     except Exception as e:
@@ -234,10 +234,10 @@ async def minibank_tashc(message: types.Message):
         update_log(user_id, get_log(user_id) + message.text)
         if message.text == get_dict('back', d):
             await bot.send_message(user_id, get_dict('section', d), reply_markup=markups.regions(d))
-            set_user_state(user_id, states.S_MINI_BANK)
+            set_user_state(user_id, get_state_by_key('S_MINI_BANK'))
         elif message.text == get_dict('main_menu', d):
             await bot.send_message(user_id, get_dict('main_menu_hint', d), reply_markup=markups.main_menu(d))
-            set_user_state(user_id, states.S_GET_MAIN_MENU)
+            set_user_state(user_id, get_state_by_key('S_GET_MAIN_MENU'))
         else:
             await send_location(message.text, d, user_id, '26')
     except Exception as e:
@@ -252,10 +252,10 @@ async def minibank_tashr(message: types.Message):
         update_log(user_id, get_log(user_id) + message.text)
         if message.text == get_dict('back', d):
             await bot.send_message(user_id, get_dict('section', d), reply_markup=markups.regions(d))
-            set_user_state(user_id, states.S_MINI_BANK)
+            set_user_state(user_id, get_state_by_key('S_MINI_BANK'))
         elif message.text == get_dict('main_menu', d):
             await bot.send_message(user_id, get_dict('main_menu_hint', d), reply_markup=markups.main_menu(d))
-            set_user_state(user_id, states.S_GET_MAIN_MENU)
+            set_user_state(user_id, get_state_by_key('S_GET_MAIN_MENU'))
         else:
             await send_location(message.text, d, user_id, '27')
     except Exception as e:
@@ -270,10 +270,10 @@ async def minibank_kho(message: types.Message):
         update_log(user_id, get_log(user_id) + message.text)
         if message.text == get_dict('back', d):
             await bot.send_message(user_id, get_dict('section', d), reply_markup=markups.regions(d))
-            set_user_state(user_id, states.S_MINI_BANK)
+            set_user_state(user_id, get_state_by_key('S_MINI_BANK'))
         elif message.text == get_dict('main_menu', d):
             await bot.send_message(user_id, get_dict('main_menu_hint', d), reply_markup=markups.main_menu(d))
-            set_user_state(user_id, states.S_GET_MAIN_MENU)
+            set_user_state(user_id, get_state_by_key('S_GET_MAIN_MENU'))
         else:
             await send_location(message.text, d, user_id, '33')
     except Exception as e:
@@ -288,10 +288,10 @@ async def minibank_syr(message: types.Message):
         update_log(user_id, get_log(user_id) + message.text)
         if message.text == get_dict('back', d):
             await bot.send_message(user_id, get_dict('section', d), reply_markup=markups.regions(d))
-            set_user_state(user_id, states.S_MINI_BANK)
+            set_user_state(user_id, get_state_by_key('S_MINI_BANK'))
         elif message.text == get_dict('main_menu', d):
             await bot.send_message(user_id, get_dict('main_menu_hint', d), reply_markup=markups.main_menu(d))
-            set_user_state(user_id, states.S_GET_MAIN_MENU)
+            set_user_state(user_id, get_state_by_key('S_GET_MAIN_MENU'))
         else:
             await send_location(message.text, d, user_id, '24')
     except Exception as e:

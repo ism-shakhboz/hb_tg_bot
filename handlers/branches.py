@@ -1,7 +1,6 @@
-from misc import dp, bot, logger_app
+from misc import dp, bot
 from aiogram import types
-from vars import states, markups
-from os import path
+from vars import markups
 from database_connection.dbcon import *
 
 try:
@@ -11,7 +10,7 @@ try:
             if message == get_district(code_region, lang, code_branch_b(code_region, lang)[i][0]):
 
                 for j in get_branches(code_region, lang, code_branch_b(code_region, lang)[i][0]):
-                    await bot.send_photo(user_id, (get_image(j[1]+'.jpg'))[0])
+                    #await bot.send_photo(user_id, (get_image(j[1]+'.jpg'))[0])
                     await bot.send_location(user_id, j[3], j[4])
                     await bot.send_message(user_id, j[5])
                 break
@@ -20,7 +19,7 @@ except Exception as e:
     logger_app.error("/handlers/branches.py\nMethod: send_location\n" + str(e))
 
 
-@dp.message_handler(lambda message: get_user_state(message.from_user.id) == states.S_BRANCH)
+@dp.message_handler(lambda message: get_user_state(message.from_user.id) == get_state_by_key('S_BRANCH'))
 async def branch(message: types.Message):
     try:
         user_id = message.from_user.id
@@ -28,26 +27,26 @@ async def branch(message: types.Message):
         update_log(user_id, get_log(user_id) + message.text)
         if message.text == get_dict('branches', d):
             await bot.send_message(user_id, get_dict('section', d), reply_markup=markups.regions(d))
-            set_user_state(user_id, states.S_BRANCH_OFFICE_REGION)
+            set_user_state(user_id, get_state_by_key('S_BRANCH_OFFICE_REGION'))
         elif message.text == get_dict('mini_bank', d):
             await bot.send_message(user_id, get_dict('section', d), reply_markup=markups.regions(d))
-            set_user_state(user_id, states.S_MINI_BANK)
+            set_user_state(user_id, get_state_by_key('S_MINI_BANK'))
         elif message.text == get_dict('atm', d):
             await bot.send_message(user_id, get_dict('section', d), reply_markup=markups.regions(d))
-            set_user_state(user_id, states.S_ATM)
+            set_user_state(user_id, get_state_by_key('S_ATM'))
         elif message.text == get_dict('back', d):
             await bot.send_message(user_id, get_dict('general_hint', d), reply_markup=markups.general(d))
-            set_user_state(user_id, states.S_GENERAL)
+            set_user_state(user_id, get_state_by_key('S_GENERAL'))
         elif message.text == get_dict('main_menu', d):
             await bot.send_message(user_id, get_dict('main_menu_hint', d), reply_markup=markups.main_menu(d))
-            set_user_state(user_id, states.S_GET_MAIN_MENU)
+            set_user_state(user_id, get_state_by_key('S_GET_MAIN_MENU'))
         else:
             await bot.send_message(user_id, get_dict('section', d))
     except Exception as e:
         logger_app.error("/handlers/branches.py\nMethod: branch\n" + str(e))
 
 
-@dp.message_handler(lambda message: get_user_state(message.from_user.id) == states.S_BRANCH_OFFICE_REGION)
+@dp.message_handler(lambda message: get_user_state(message.from_user.id) == get_state_by_key('S_BRANCH_OFFICE_REGION'))
 async def branch_office_region(message: types.Message):
     try:
         user_id = message.from_user.id
@@ -56,10 +55,10 @@ async def branch_office_region(message: types.Message):
         i = 0
         if message.text == get_dict('back', d):
             await bot.send_message(user_id, get_dict('section', d), reply_markup=markups.branches(d))
-            set_user_state(user_id, states.S_BRANCH)
+            set_user_state(user_id, get_state_by_key('S_BRANCH'))
         elif message.text == get_dict('main_menu', d):
             await bot.send_message(user_id, get_dict('main_menu_hint', d), reply_markup=markups.main_menu(d))
-            set_user_state(user_id, states.S_GET_MAIN_MENU)
+            set_user_state(user_id, get_state_by_key('S_GET_MAIN_MENU'))
         else:
             while i < len(distinct_regions()):
                 if message.text == get_region(distinct_regions()[i][0], d):
@@ -80,10 +79,10 @@ async def bo_andijan(message: types.Message):
         update_log(user_id, get_log(user_id) + message.text)
         if message.text == get_dict('back', d):
             await bot.send_message(user_id, get_dict('section', d), reply_markup=markups.regions(d))
-            set_user_state(user_id, states.S_BRANCH_OFFICE_REGION)
+            set_user_state(user_id, get_state_by_key('S_BRANCH_OFFICE_REGION'))
         elif message.text == get_dict('main_menu', d):
             await bot.send_message(user_id, get_dict('main_menu_hint', d), reply_markup=markups.main_menu(d))
-            set_user_state(user_id, states.S_GET_MAIN_MENU)
+            set_user_state(user_id, get_state_by_key('S_GET_MAIN_MENU'))
         else:
             await send_location(message.text, d, user_id, '03')
     except Exception as e:
@@ -98,10 +97,10 @@ async def bo_bukhara(message: types.Message):
         update_log(user_id, get_log(user_id) + message.text)
         if message.text == get_dict('back', d):
             await bot.send_message(user_id, get_dict('section', d), reply_markup=markups.regions(d))
-            set_user_state(user_id, states.S_BRANCH_OFFICE_REGION)
+            set_user_state(user_id, get_state_by_key('S_BRANCH_OFFICE_REGION'))
         elif message.text == get_dict('main_menu', d):
             await bot.send_message(user_id, get_dict('main_menu_hint', d), reply_markup=markups.main_menu(d))
-            set_user_state(user_id, states.S_GET_MAIN_MENU)
+            set_user_state(user_id, get_state_by_key('S_GET_MAIN_MENU'))
         else:
             await send_location(message.text, d, user_id, '06')
     except Exception as e:
@@ -116,10 +115,10 @@ async def bo_fergana(message: types.Message):
         update_log(user_id, get_log(user_id) + message.text)
         if message.text == get_dict('back', d):
             await bot.send_message(user_id, get_dict('section', d), reply_markup=markups.regions(d))
-            set_user_state(user_id, states.S_BRANCH_OFFICE_REGION)
+            set_user_state(user_id, get_state_by_key('S_BRANCH_OFFICE_REGION'))
         elif message.text == get_dict('main_menu', d):
             await bot.send_message(user_id, get_dict('main_menu_hint', d), reply_markup=markups.main_menu(d))
-            set_user_state(user_id, states.S_GET_MAIN_MENU)
+            set_user_state(user_id, get_state_by_key('S_GET_MAIN_MENU'))
         else:
             await send_location(message.text, d, user_id, '30')
     except Exception as e:
@@ -134,10 +133,10 @@ async def bo_jizzakh(message: types.Message):
         update_log(user_id, get_log(user_id) + message.text)
         if message.text == get_dict('back', d):
             await bot.send_message(user_id, get_dict('section', d), reply_markup=markups.regions(d))
-            set_user_state(user_id, states.S_BRANCH_OFFICE_REGION)
+            set_user_state(user_id, get_state_by_key('S_BRANCH_OFFICE_REGION'))
         elif message.text == get_dict('main_menu', d):
             await bot.send_message(user_id, get_dict('main_menu_hint', d), reply_markup=markups.main_menu(d))
-            set_user_state(user_id, states.S_GET_MAIN_MENU)
+            set_user_state(user_id, get_state_by_key('S_GET_MAIN_MENU'))
         else:
             await send_location(message.text, d, user_id, '08')
     except Exception as e:
@@ -152,10 +151,10 @@ async def bo_namangan(message: types.Message):
         update_log(user_id, get_log(user_id) + message.text)
         if message.text == get_dict('back', d):
             await bot.send_message(user_id, get_dict('section', d), reply_markup=markups.regions(d))
-            set_user_state(user_id, states.S_BRANCH_OFFICE_REGION)
+            set_user_state(user_id, get_state_by_key('S_BRANCH_OFFICE_REGION'))
         elif message.text == get_dict('main_menu', d):
             await bot.send_message(user_id, get_dict('main_menu_hint', d), reply_markup=markups.main_menu(d))
-            set_user_state(user_id, states.S_GET_MAIN_MENU)
+            set_user_state(user_id, get_state_by_key('S_GET_MAIN_MENU'))
         else:
             await send_location(message.text, d, user_id, '14')
     except Exception as e:
@@ -170,10 +169,10 @@ async def bo_navoi(message: types.Message):
         update_log(user_id, get_log(user_id) + message.text)
         if message.text == get_dict('back', d):
             await bot.send_message(user_id, get_dict('section', d), reply_markup=markups.regions(d))
-            set_user_state(user_id, states.S_BRANCH_OFFICE_REGION)
+            set_user_state(user_id, get_state_by_key('S_BRANCH_OFFICE_REGION'))
         elif message.text == get_dict('main_menu', d):
             await bot.send_message(user_id, get_dict('main_menu_hint', d), reply_markup=markups.main_menu(d))
-            set_user_state(user_id, states.S_GET_MAIN_MENU)
+            set_user_state(user_id, get_state_by_key('S_GET_MAIN_MENU'))
         else:
             await send_location(message.text, d, user_id, '12')
     except Exception as e:
@@ -188,10 +187,10 @@ async def bo_kashkadarya(message: types.Message):
         update_log(user_id, get_log(user_id) + message.text)
         if message.text == get_dict('back', d):
             await bot.send_message(user_id, get_dict('section', d), reply_markup=markups.regions(d))
-            set_user_state(user_id, states.S_BRANCH_OFFICE_REGION)
+            set_user_state(user_id, get_state_by_key('S_BRANCH_OFFICE_REGION'))
         elif message.text == get_dict('main_menu', d):
             await bot.send_message(user_id, get_dict('main_menu_hint', d), reply_markup=markups.main_menu(d))
-            set_user_state(user_id, states.S_GET_MAIN_MENU)
+            set_user_state(user_id, get_state_by_key('S_GET_MAIN_MENU'))
         else:
             await send_location(message.text, d, user_id, '10')
     except Exception as e:
@@ -206,10 +205,10 @@ async def bo_karakalpak(message: types.Message):
         update_log(user_id, get_log(user_id) + message.text)
         if message.text == get_dict('back', d):
             await bot.send_message(user_id, get_dict('section', d), reply_markup=markups.regions(d))
-            set_user_state(user_id, states.S_BRANCH_OFFICE_REGION)
+            set_user_state(user_id, get_state_by_key('S_BRANCH_OFFICE_REGION'))
         elif message.text == get_dict('main_menu', d):
             await bot.send_message(user_id, get_dict('main_menu_hint', d), reply_markup=markups.main_menu(d))
-            set_user_state(user_id, states.S_GET_MAIN_MENU)
+            set_user_state(user_id, get_state_by_key('S_GET_MAIN_MENU'))
         else:
             await send_location(message.text, d, user_id, '35')
     except Exception as e:
@@ -224,10 +223,10 @@ async def bo_samarkand(message: types.Message):
         update_log(user_id, get_log(user_id) + message.text)
         if message.text == get_dict('back', d):
             await bot.send_message(user_id, get_dict('section', d), reply_markup=markups.regions(d))
-            set_user_state(user_id, states.S_BRANCH_OFFICE_REGION)
+            set_user_state(user_id, get_state_by_key('S_BRANCH_OFFICE_REGION'))
         elif message.text == get_dict('main_menu', d):
             await bot.send_message(user_id, get_dict('main_menu_hint', d), reply_markup=markups.main_menu(d))
-            set_user_state(user_id, states.S_GET_MAIN_MENU)
+            set_user_state(user_id, get_state_by_key('S_GET_MAIN_MENU'))
         else:
             await send_location(message.text, d, user_id, '18')
     except Exception as e:
@@ -242,10 +241,10 @@ async def bo_sirdaryo(message: types.Message):
         update_log(user_id, get_log(user_id) + message.text)
         if message.text == get_dict('back', d):
             await bot.send_message(user_id, get_dict('section', d), reply_markup=markups.regions(d))
-            set_user_state(user_id, states.S_BRANCH_OFFICE_REGION)
+            set_user_state(user_id, get_state_by_key('S_BRANCH_OFFICE_REGION'))
         elif message.text == get_dict('main_menu', d):
             await bot.send_message(user_id, get_dict('main_menu_hint', d), reply_markup=markups.main_menu(d))
-            set_user_state(user_id, states.S_GET_MAIN_MENU)
+            set_user_state(user_id, get_state_by_key('S_GET_MAIN_MENU'))
         else:
             await send_location(message.text, d, user_id, '24')
     except Exception as e:
@@ -260,10 +259,10 @@ async def bo_surkhandarya(message: types.Message):
         update_log(user_id, get_log(user_id) + message.text)
         if message.text == get_dict('back', d):
             await bot.send_message(user_id, get_dict('section', d), reply_markup=markups.regions(d))
-            set_user_state(user_id, states.S_BRANCH_OFFICE_REGION)
+            set_user_state(user_id, get_state_by_key('S_BRANCH_OFFICE_REGION'))
         elif message.text == get_dict('main_menu', d):
             await bot.send_message(user_id, get_dict('main_menu_hint', d), reply_markup=markups.main_menu(d))
-            set_user_state(user_id, states.S_GET_MAIN_MENU)
+            set_user_state(user_id, get_state_by_key('S_GET_MAIN_MENU'))
         else:
             await send_location(message.text, d, user_id, '22')
     except Exception as e:
@@ -278,10 +277,10 @@ async def bo_tashkent(message: types.Message):
         update_log(user_id, get_log(user_id) + message.text)
         if message.text == get_dict('back', d):
             await bot.send_message(user_id, get_dict('section', d), reply_markup=markups.regions(d))
-            set_user_state(user_id, states.S_BRANCH_OFFICE_REGION)
+            set_user_state(user_id, get_state_by_key('S_BRANCH_OFFICE_REGION'))
         elif message.text == get_dict('main_menu', d):
             await bot.send_message(user_id, get_dict('main_menu_hint', d), reply_markup=markups.main_menu(d))
-            set_user_state(user_id, states.S_GET_MAIN_MENU)
+            set_user_state(user_id, get_state_by_key('S_GET_MAIN_MENU'))
         else:
             await send_location(message.text, d, user_id, '26')
     except Exception as e:
@@ -296,10 +295,10 @@ async def bo_tashkent_reg(message: types.Message):
         update_log(user_id, get_log(user_id) + message.text)
         if message.text == get_dict('back', d):
             await bot.send_message(user_id, get_dict('section', d), reply_markup=markups.regions(d))
-            set_user_state(user_id, states.S_BRANCH_OFFICE_REGION)
+            set_user_state(user_id, get_state_by_key('S_BRANCH_OFFICE_REGION'))
         elif message.text == get_dict('main_menu', d):
             await bot.send_message(user_id, get_dict('main_menu_hint', d), reply_markup=markups.main_menu(d))
-            set_user_state(user_id, states.S_GET_MAIN_MENU)
+            set_user_state(user_id, get_state_by_key('S_GET_MAIN_MENU'))
         else:
             await send_location(message.text, d, user_id, '27')
     except Exception as e:
@@ -314,10 +313,10 @@ async def bo_khorezm(message: types.Message):
         update_log(user_id, get_log(user_id) + message.text)
         if message.text == get_dict('back', d):
             await bot.send_message(user_id, get_dict('section', d), reply_markup=markups.regions(d))
-            set_user_state(user_id, states.S_BRANCH_OFFICE_REGION)
+            set_user_state(user_id, get_state_by_key('S_BRANCH_OFFICE_REGION'))
         elif message.text == get_dict('main_menu', d):
             await bot.send_message(user_id, get_dict('main_menu_hint', d), reply_markup=markups.main_menu(d))
-            set_user_state(user_id, states.S_GET_MAIN_MENU)
+            set_user_state(user_id, get_state_by_key('S_GET_MAIN_MENU'))
         else:
             get_branches('33', d, '0041')
             await send_location(message.text, d, user_id, '33')
