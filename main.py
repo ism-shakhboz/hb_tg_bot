@@ -1,8 +1,12 @@
 from aiogram import executor
 from misc import dp
 
-import handlers
+
+while True:
+    try:
+        import handlers
+        executor.start_polling(dp, skip_updates=True)
+    except Exception as e:
+        print('Restart')
 
 
-if __name__ == "__main__":
-    executor.start_polling(dp, skip_updates=True)
