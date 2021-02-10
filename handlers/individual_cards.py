@@ -1,11 +1,10 @@
-﻿from misc import dp, bot, logger_app
+﻿from misc import dp, bot
 from aiogram import types
 from vars import states, markups
 from cryptography.fernet import Fernet
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from database_connection.dbcon import *
 import json
-import svgate
+import api
 
 
 @dp.message_handler(lambda message: get_user_state(message.from_user.id) == get_state_by_key('S_CARD'))
@@ -92,11 +91,10 @@ async def card_menu(message: types.Message):
                 res = get_dict('card_balance', d) + '\n\n'
                 for row in cards_list:
                     decrypted_card = f.decrypt(bytes((row[2])[2:-1], encoding='utf8'))
-                    balance = svgate.getCardBalance(decrypted_card.decode(), row[1])
+                    balance = api.getCardBalance(decrypted_card.decode(), row[1])
                     if balance['msgrespdata']['errorCode'] == '0':
                         res = res + "💳 " + row[0] + '\n💰' + "{:,.2f}".format((int(balance["msgrespdata"]["response"]["balance"])/100)) + ' ' +get_dict('sum', d)+'\n\n'
                 await bot.send_message(user_id, res)
-		
             else:
                 await bot.send_message(user_id, get_dict('card_check', d))
         elif message.text == get_dict('statement', d):
@@ -104,7 +102,7 @@ async def card_menu(message: types.Message):
         elif message.text == get_dict('block', d):
             await bot.send_message(user_id, get_dict('developing', d))
         elif message.text == get_dict('refresh_card', d):
-            refresh_cards = svgate.get_cards(get_phone_number(user_id))['result']
+            refresh_cards = api.get_cards(get_phone_number(user_id))['result']
             cards = ''
             if refresh_cards:
                 update(user_id, refresh_cards)
@@ -185,7 +183,7 @@ async def new_card_expiry(message: types.Message):
             cur = conn.cursor()
             cur.execute(script, (str(user_id),))
             row = cur.fetchone()
-            respJson = svgate.authCard(row[0], row[1])
+            respJson = api.authCard(row[0], row[1])
             errorCode = respJson['msgrespdata']['errorCode']
             if errorCode == '0':
                 await bot.send_message(user_id, get_dict('sms_code', d), reply_markup=markups.cancel(d))
@@ -215,7 +213,7 @@ async def sms(message: types.Message):
         else:
             sessionId = get_session_id(user_id)
             confirmCode = str(message.text)
-            errorCode = (svgate.confirmOperationAuthCard(sessionId, confirmCode))['msgrespdata']['errorCode']
+            errorCode = (api.confirmOperationAuthCard(sessionId, confirmCode))['msgrespdata']['errorCode']
             
             if errorCode == '0':
                 cards=''
@@ -247,14 +245,14 @@ async def process_callback_block(callback_query: types.CallbackQuery):
         d = get_lang(callback_query.from_user.id)
         await bot.answer_callback_query(callback_query.id)
         res = get_dict('card', d)+" "
-        block = svgate.card_status_change(callback_query.data.replace("block", ""), 20)['result']
+        block = api.card_status_change(callback_query.data.replace("block", ""), 20)['result']
        
         if block:
             if block["status"] == "OK":
                 res += block["pan"] + " " +get_dict('blocked', d)
             else:
                 res += block["pan"] + " "+ get_dict('error_block', d)
-        refresh_cards = svgate.get_cards(get_phone_number(callback_query.from_user.id))['result']
+        refresh_cards = api.get_cards(get_phone_number(callback_query.from_user.id))['result']
         if refresh_cards:
             update(callback_query.from_user.id, refresh_cards)
         await bot.send_message(callback_query.from_user.id, res)
@@ -269,7 +267,7 @@ async def process_callback_history(callback_query: types.CallbackQuery):
         await bot.answer_callback_query(callback_query.id)
         res = get_dict('card_history', d)+'\n'
         
-        contents = svgate.get_history(ids=[callback_query.data.replace("history", "")])["result"]["content"]
+        contents = api.get_history(ids=[callback_query.data.replace("history", "")])["result"]["content"]
         
         if len(contents) > 0:
             for content in contents:

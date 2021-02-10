@@ -29,24 +29,14 @@ def send_request(payload):
         resp = json.loads(response.read().decode('utf8'))
         return resp
     except Exception as e:
-        logger_app.error("/handlers/svgate.py\nMethod: send_request_playmobile\n"+str(e))
-
-'''
-def send_request(payload):
-    try:
-        response = requests.post(url, json=payload).json()
-        print(type(response))
-        return response
-    except Exception as e:
-        print(e)
-'''
+        logger_app.error("/handlers/api.py\nMethod: send_request_playmobile\n"+str(e))
 
 def send_request_playmobile(sms_load):
     try:
         response = requests.post(config['PLAY_MOBILE']['url'], json=sms_load, auth=HTTPBasicAuth(config['PLAY_MOBILE']['login'], config['PLAY_MOBILE']['password']), headers=headers)
         return response
     except Exception as e:
-        logger_app.error("/handlers/svgate.py\nMethod: send_request_playmobile\n"+str(e))
+        logger_app.error("/handlers/api.py\nMethod: send_request_playmobile\n"+str(e))
 
 def authCard(card, expiry):
     try:
@@ -68,7 +58,7 @@ def authCard(card, expiry):
         resp = send_request(payload)
         return resp
     except Exception as e:
-        logger_app.error("/handlers/svgate.py\nMethod: authCard\n"+str(e))
+        logger_app.error("/handlers/api.py\nMethod: authCard\n"+str(e))
 
 
 def payP2p(from_card, expiry, to_card, amount):
@@ -92,7 +82,7 @@ def payP2p(from_card, expiry, to_card, amount):
                 }
         return send_request(payload)
     except Exception as e:
-        logger_app.error("/handlers/svgate.py\nMethod: authCard\n"+str(e))
+        logger_app.error("/handlers/api.py\nMethod: authCard\n"+str(e))
 
 
 def getCardName(card_number):
@@ -113,7 +103,7 @@ def getCardName(card_number):
                 }
         return send_request(payload)
     except Exception as e:
-        logger_app.error("/handlers/svgate.py\nMethod: authCard\n"+str(e))
+        logger_app.error("/handlers/api.py\nMethod: authCard\n"+str(e))
 
 def payCellular(card, expiry, phone, amount):
     try:
@@ -136,7 +126,7 @@ def payCellular(card, expiry, phone, amount):
                 }
         return send_request(payload)
     except Exception as e:
-        logger_app.error("/handlers/svgate.py\nMethod: payCellular\n"+str(e))
+        logger_app.error("/handlers/api.py\nMethod: payCellular\n"+str(e))
 
 def confirmOperationAuthCard(sessionId, confirmCode):
     try:
@@ -157,7 +147,7 @@ def confirmOperationAuthCard(sessionId, confirmCode):
                 }
         return send_request(payload)
     except Exception as e:
-        logger_app.error("/handlers/svgate.py\nMethod: confirmOperation\n"+str(e))
+        logger_app.error("/handlers/api.py\nMethod: confirmOperation\n"+str(e))
 
 
 def getCardBalance(card, expiry):
@@ -179,20 +169,7 @@ def getCardBalance(card, expiry):
                 }
         return send_request(payload)
     except Exception as e:
-        logger_app.error("/handlers/svgate.py\nMethod: getCardBalance\n"+str(e))
-
-
-def get_cards_by_ids(ids):
-    try:
-        payload = {
-            "method": "cards.get",
-            "params": {"ids": [ids]},
-            "jsonrpc": "2.0",
-            "id": 0,
-        }
-        return send_request(payload)
-    except Exception as e:
-        logger_app.error("/handlers/svgate.py\nMethod: get_cards\n"+str(e))
+        logger_app.error("/handlers/api.py\nMethod: getCardBalance\n"+str(e))
 
 
 def get_sms(phone, code, message_id):
@@ -205,7 +182,6 @@ def get_sms(phone, code, message_id):
                         "recipient": phone,
                         "message-id": message_id,
                         "sms": {
-
                             "originator": "3500",
                             "content": {
                                 "text": "Kod aktivasii karti, Vnimaniye!!! Nikomu ne soobshayte kod: %s" % str(code)
@@ -214,8 +190,7 @@ def get_sms(phone, code, message_id):
                     }
                 ]
         }
-        
         return send_request_playmobile(sms_load)
     except Exception as e:
-        logger_app.error("/handlers/svgate.py\nMethod: get_sms\n"+str(e))
+        logger_app.error("/handlers/api.py\nMethod: get_sms\n"+str(e))
 

@@ -1,6 +1,6 @@
 import psycopg2
 from psycopg2 import Error, sql
-import svgate
+import api
 import json
 import urllib3
 import datetime as dt
@@ -602,14 +602,14 @@ def update(user_id, cards):
         conn.commit()
         ids = []
         for card in cards:
-            in_card = svgate.new_card(card["pan"], card["expiry"])
+            in_card = api.new_card(card["pan"], card["expiry"])
             if in_card["result"]:
                 insert_script = 'INSERT INTO cards(user_id, card_json, aacct, mfo, client_unique_id) VALUES (%s, %s, %s, %s, %s);'
                 cur = conn.cursor()
                 cur.execute(insert_script, (str(user_id), json.dumps(in_card), (in_card["result"]["aacct"])[5:], (in_card["result"]["aacct"])[0:5], (in_card["result"]["aacct"])[-11:-3]))
                 ids.append(str(in_card["result"]['id']))
         conn.commit()
-        return svgate.get_balance(ids)
+        return api.get_balance(ids)
     except(Exception, Error) as e:
         logger_app.error("/database_connection/dbcon.py\nMethod: update\n" + str(e))
 

@@ -3,7 +3,7 @@ from misc import dp, bot, logger_app
 from aiogram import types
 from vars import states, markups
 import datetime as dt
-import svgate
+import api
 from aiogram.types import ReplyKeyboardRemove
 from random import randint
 import json
@@ -76,7 +76,7 @@ async def auth(message: types.Message):
         script = 'SELECT "ID" FROM playmobile_report order by "ID" DESC LIMIT 1'
         cur = conn.cursor()
         cur.execute(script, (str(user_id),))
-        svgate.get_sms(message.contact.phone_number, otp, (int(cur.fetchone()[0])+1))
+        api.get_sms(message.contact.phone_number, otp, (int(cur.fetchone()[0])+1))
         playmobile_insert(user_id, 'Message is: ' + str(otp), str(dt.datetime.now()))
         await bot.send_message(user_id, get_dict('sms_code', d), reply_markup = ReplyKeyboardRemove())
         set_user_state(user_id, get_state_by_key('S_CONFIRM_NUMBER'))

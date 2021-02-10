@@ -3,7 +3,7 @@ from aiogram import types
 from vars import states, markups
 from cryptography.fernet import Fernet
 import datetime as dt
-import svgate
+import api
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from database_connection.dbcon import *
 
@@ -73,7 +73,7 @@ async def mp(callback_query: types.CallbackQuery):
         
         encoded_card = get_card_encode(user_id, callback_query.data[2:])
         decrypted_card = f.decrypt(bytes((encoded_card[0])[2:-1], encoding='utf8'))
-        balance = svgate.getCardBalance(decrypted_card.decode(), encoded_card[1])
+        balance = api.getCardBalance(decrypted_card.decode(), encoded_card[1])
         
         set_mobile_payment_from_user_card((get_mobile_payment_oper_id(user_id)[0]), callback_query.data[2:])
 
@@ -104,7 +104,7 @@ async def accessPayment(callback_query: types.CallbackQuery):
         encoded_card = get_card_encode(user_id, get_card_from_user_mobile_payment_oper(user_id))
         decrypted_card = f.decrypt(bytes((encoded_card[0])[2:-1], encoding='utf8'))
 
-        errorCode = svgate.payCellular(decrypted_card.decode(), encoded_card[1], get_to_phone_number_oper(user_id)[0],
+        errorCode = api.payCellular(decrypted_card.decode(), encoded_card[1], get_to_phone_number_oper(user_id)[0],
                                   str(get_amount_from_user_mobile_payment_oper(user_id)[0]))
      
         if errorCode["msgrespdata"]["errorCode"] == "0":
@@ -134,7 +134,7 @@ async def sms(message: types.Message):
         else:
             sessionId = get_session_id(user_id)
             confirmCode = str(message.text)
-            errorCode = (svgate.confirmOperationAuthCard(sessionId, confirmCode))['msgrespdata']['errorCode']
+            errorCode = (api.confirmOperationAuthCard(sessionId, confirmCode))['msgrespdata']['errorCode']
             
             if errorCode == '0':
                 await bot.send_message(user_id, get_dict('success_transfer_card_to_card', d),

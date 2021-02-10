@@ -6,7 +6,7 @@ from vars import states, markups
 from database_connection.dbcon import *
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 import json
-import svgate
+import api
 
 sessions = {}
 
@@ -23,7 +23,7 @@ async def card_to_card_transfers(message: types.Message):
             await bot.send_message(user_id, get_dict('payments_hint', d), reply_markup=markups.payments(d))
             set_user_state(user_id, get_state_by_key('S_PAYMENTS'))
         elif str(message.text).isdecimal() and len(str(message.text)) == 16:
-            receiver = svgate.getCardName(message.text)        
+            receiver = api.getCardName(message.text)
             if receiver['msgrespdata']['errorCode'] == '0':
                 await bot.send_message(user_id, get_dict('receiver', d) + receiver['msgrespdata']['response']['name'] + '\n' + get_dict('card_number', d) + message.text + '\n' + get_dict('enter_amount', d), reply_markup=markups.cancel(d))
                 p2p_report_commit(user_id, first_name, last_name, message.text, str(dt.datetime.now()))
@@ -83,7 +83,7 @@ async def p2p(callback_query: types.CallbackQuery):
         
         encoded_card = get_card_encode(user_id, callback_query.data[3:])
         decrypted_card = f.decrypt(bytes((encoded_card[0])[2:-1], encoding='utf8'))
-        balance = svgate.getCardBalance(decrypted_card.decode(), encoded_card[1])
+        balance = api.getCardBalance(decrypted_card.decode(), encoded_card[1])
        
         set_p2p_from_user_card((get_p2p_oper_id(user_id)[0]), callback_query.data[3:])
 
@@ -117,7 +117,7 @@ async def access(callback_query: types.CallbackQuery):
         encoded_card = get_card_encode(user_id, callback_query.data[6:])
         decrypted_card = f.decrypt(bytes((encoded_card[0])[2:-1], encoding='utf8'))
         
-        errorCode = svgate.payP2p(decrypted_card.decode(), encoded_card[1], get_to_card_p2p_oper(user_id)[0], str(get_amount_from_user_p2p_oper(user_id)[0]))
+        errorCode = api.payP2p(decrypted_card.decode(), encoded_card[1], get_to_card_p2p_oper(user_id)[0], str(get_amount_from_user_p2p_oper(user_id)[0]))
        
         if errorCode["msgrespdata"]["errorCode"] == "0":
             await bot.delete_message(callback_query.message.chat.id, callback_query.message.message_id)
@@ -152,7 +152,7 @@ async def sms(message: types.Message):
         else:
             sessionId = get_session_id(user_id)
             confirmCode = str(message.text)
-            errorCode = (svgate.confirmOperationAuthCard(sessionId, confirmCode))['msgrespdata']['errorCode']
+            errorCode = (api.confirmOperationAuthCard(sessionId, confirmCode))['msgrespdata']['errorCode']
             if errorCode == '0':
                 await bot.send_message(user_id, get_dict('success_transfer_card_to_card', d), reply_markup=markups.payments(d))
                 set_p2p_info((get_p2p_oper_id(user_id)[0]), 'Success', 'To''lov amalga oshirildi', str(dt.datetime.now()))
