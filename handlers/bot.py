@@ -1,12 +1,8 @@
-from psycopg2._psycopg import Error
-from misc import dp, bot, logger_app
+from misc import dp, bot
 from aiogram import types
-from vars import states, markups
-import datetime as dt
-import api
+from vars import markups
 from aiogram.types import ReplyKeyboardRemove
 from random import randint
-import json
 from database_connection.dbcon import *
 
 
@@ -63,7 +59,6 @@ async def lang(message: types.Message):
         logger_app.error("/handlers/bot.py\nMethod: lang\n" + str(e))
 
 
-# str(message.contact.phone_number).replace('+', '')
 @dp.message_handler(content_types=['contact'])
 async def auth(message: types.Message):
     try:

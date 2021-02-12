@@ -236,8 +236,6 @@ async def sms(message: types.Message):
                 set_user_state(user_id, get_state_by_key('S_CARD_MENU'))
     except Exception as e:
         logger_app.error("/handlers/individual_cards.py\nMethod: new_card_number\n" + str(e))
-        
-     
 
 @dp.callback_query_handler(lambda c: c.data.find("block") == 0)
 async def process_callback_block(callback_query: types.CallbackQuery):

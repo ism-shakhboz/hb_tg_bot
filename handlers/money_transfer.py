@@ -1,11 +1,9 @@
 from misc import dp, bot, logger_p2p
 from aiogram import types
-import datetime as dt
 from cryptography.fernet import Fernet
-from vars import states, markups
+from vars import markups
 from database_connection.dbcon import *
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
-import json
 import api
 
 sessions = {}
