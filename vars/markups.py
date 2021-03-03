@@ -37,6 +37,7 @@ def markup_maker(List, d):
     markup.row(get_dict('main_menu', d), get_dict('back', d))
     return markup
 
+
 async def get_markups(table_name, message: types.Message):
     try:
         user_id = message.from_user.id
@@ -57,7 +58,7 @@ async def get_markups(table_name, message: types.Message):
         if j == len(get_buttons(d, table_name)):
             await bot.send_message(user_id, get_dict('section', d))
     except Exception as e:
-        logger_app.error("\nMethod: " + table_name+'\n'+str(e))
+        logger_app.error("\nMethod: " + table_name + '\n' + str(e))
 
 
 def inline_keyboards(lang, table, name):
@@ -131,16 +132,19 @@ def buttons(lang, table_name):
                 count = 0
     return markup
 
+
 def auth(d):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
     contact = types.KeyboardButton(text=get_dict('send', d), request_contact=True)
     markup.add(contact)
     return markup
 
+
 def cancel(d):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     markup.row(get_dict('cancel', d))
     return markup
+
 
 def repayment_of_loans_bank_type(d):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
@@ -149,31 +153,37 @@ def repayment_of_loans_bank_type(d):
     markup.row(get_dict('back', d))
     return markup
 
+
 def payment_mobile_operators(user_id, d):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     markup.row(get_phone_number(user_id))
     markup.row(get_dict('cancel', d))
     return markup
 
+
 def minibank(code, d):
     List = get_minibanks(code, d)
     m = markup_maker(List, d)
     return m
+
 
 def atm(code, d):
     List = get_atms(code, d)
     m = markup_maker(List, d)
     return m
 
+
 def districts(code, d):
     List = get_districts(code, d)
     m = markup_maker(List, d)
     return m
 
+
 def regions(d):
     List = get_regions(d)
     m = markup_maker(List, d)
     return m
+
 
 def cost(d):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
@@ -359,7 +369,7 @@ def checkout(d):
 def cards_menu(d):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     markup.row(get_dict('balance', d), get_dict('statement', d))
-    markup.row(get_dict('block', d), get_dict('add_new_card', d))
+    markup.row(get_dict('block', d))
     markup.row(get_dict('main_menu', d), get_dict('back', d))
     return markup
 
@@ -445,7 +455,7 @@ def legal_entity(d):
 def payments(d):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     markup.row(get_dict('card_to_card_transfers', d), get_dict('repayment_of_loans', d))
-    markup.row(get_dict('mobile_operators', d))
+    markup.row(get_dict('mobile_operators', d), get_dict('add_new_card', d))
     markup.row(get_dict('back', d))
     return markup
 
@@ -469,4 +479,11 @@ def feedback(d):
     markup.row(get_dict('contact_centre', d), get_dict('online_consultant', d))
     markup.row(get_dict('social_network', d), get_dict('poll', d))
     markup.row(get_dict('back', d))
+    return markup
+
+
+def create_card_agreement(d):
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    markup.row(get_dict('create_card_next', d))
+    markup.row(get_dict('cancel', d))
     return markup

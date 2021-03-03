@@ -84,8 +84,6 @@ async def p2p(callback_query: types.CallbackQuery):
         balance = api.getCardBalance(decrypted_card.decode(), encoded_card[1])
        
         set_p2p_from_user_card((get_p2p_oper_id(user_id)[0]), callback_query.data[3:])
-
-        
         if float(get_amount_from_user_p2p_oper(user_id)[0]) >= (float(balance['msgrespdata']['response']['balance'])/100):
             set_p2p_info((get_p2p_oper_id(user_id)[0]), 'Error: Unsufficient funds', 'Mablag'' yetarli emas', str(dt.datetime.now()))
             await bot.send_message(callback_query.from_user.id, get_dict('insufficient_funds', d))
@@ -116,7 +114,7 @@ async def access(callback_query: types.CallbackQuery):
         decrypted_card = f.decrypt(bytes((encoded_card[0])[2:-1], encoding='utf8'))
         
         errorCode = api.payP2p(decrypted_card.decode(), encoded_card[1], get_to_card_p2p_oper(user_id)[0], str(get_amount_from_user_p2p_oper(user_id)[0]))
-       
+
         if errorCode["msgrespdata"]["errorCode"] == "0":
             await bot.delete_message(callback_query.message.chat.id, callback_query.message.message_id)
             await bot.send_message(callback_query.from_user.id, get_dict('sms_code', d), reply_markup=markups.cancel(d))

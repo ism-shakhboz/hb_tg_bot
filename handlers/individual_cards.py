@@ -1,10 +1,11 @@
-﻿from misc import dp, bot
+﻿from misc import dp, bot, config
 from aiogram import types
-from vars import states, markups
+from vars import markups
 from cryptography.fernet import Fernet
 from database_connection.dbcon import *
 import json
 import api
+import os
 
 
 @dp.message_handler(lambda message: get_user_state(message.from_user.id) == get_state_by_key('S_CARD'))
@@ -120,9 +121,6 @@ async def card_menu(message: types.Message):
                 await bot.send_message(user_id, get_dict('refresh_card_success', d)+'\n\n'+cards)
             else:
                 await bot.send_message(user_id, get_dict('card_check', d))
-        elif message.text == get_dict('add_new_card', d):
-            await bot.send_message(user_id, get_dict('add_new_card_number', d), reply_markup=markups.cancel(d))
-            set_user_state(user_id, get_state_by_key('S_NEW_CARD_NUMBER'))
         elif message.text == get_dict('back', d):
             await bot.send_message(user_id, get_dict('section', d), reply_markup=markups.cards(d))
             set_user_state(user_id, get_state_by_key('S_CARD'))
@@ -134,6 +132,20 @@ async def card_menu(message: types.Message):
     except Exception as e:
         logger_app.error("/handlers/individual_cards.py\nMethod: card_menu\n" + str(e))
 
+@dp.message_handler(lambda message: get_user_state(message.from_user.id) == get_state_by_key('S_CREATE_CARD_AGREEMENT'))
+async def card_agreement(message: types.Message):
+    try:
+        user_id = message.from_user.id
+        d = get_lang(user_id)
+        update_log(user_id, get_log(user_id) + message.text)
+        if message.text == get_dict('cancel', d):
+            await bot.send_message(user_id, get_dict('payments_hint', d), reply_markup=markups.payments(d))
+            set_user_state(user_id, get_state_by_key('S_PAYMENTS'))
+        elif message.text == get_dict('create_card_next', d):
+            await bot.send_message(user_id, get_dict('add_new_card_number', d), reply_markup=markups.cancel(d))
+            set_user_state(user_id, get_state_by_key('S_NEW_CARD_NUMBER'))
+    except Exception as e:
+        logger_app.error("/handlers/individual_cards.py\nMethod: card_agreement\n" + str(e))
 
 @dp.message_handler(lambda message: get_user_state(message.from_user.id) == get_state_by_key('S_NEW_CARD_NUMBER'))
 async def new_card_number(message: types.Message):
@@ -146,8 +158,8 @@ async def new_card_number(message: types.Message):
             cur = conn.cursor()
             cur.execute(script, ('', user_id))
             conn.commit()
-            await bot.send_message(user_id, get_dict('section', d), reply_markup=markups.cards_menu(d))
-            set_user_state(user_id, get_state_by_key('S_CARD_MENU'))
+            await bot.send_message(user_id, get_dict('payments_hint', d), reply_markup=markups.payments(d))
+            set_user_state(user_id, get_state_by_key('S_PAYMENTS'))
         elif str(message.text).isdecimal() and len(str(message.text)) == 16:
             script = 'UPDATE app_users SET new_card_number=(%s) WHERE user_id=(%s);'
             cur = conn.cursor()
@@ -171,8 +183,8 @@ async def new_card_expiry(message: types.Message):
             cur = conn.cursor()
             cur.execute(script, ('', '', user_id))
             conn.commit()
-            await bot.send_message(user_id, get_dict('section', d), reply_markup=markups.cards_menu(d))
-            set_user_state(user_id, get_state_by_key('S_CARD_MENU'))
+            await bot.send_message(user_id, get_dict('payments_hint', d), reply_markup=markups.payments(d))
+            set_user_state(user_id, get_state_by_key('S_PAYMENTS'))
         elif str(message.text).isdecimal() and len(str(message.text)) == 4:
             script = 'UPDATE app_users SET new_card_expiry=(%s) WHERE user_id=(%s);'
             cur = conn.cursor()
@@ -190,8 +202,8 @@ async def new_card_expiry(message: types.Message):
                 set_session_id(user_id, respJson['msgrespdata']['response']['sessionId'])
                 set_user_state(user_id, get_state_by_key('S_SMS_TYPE_AUTH_CARD'))
             else:
-                await bot.send_message(user_id, get_dict('error_add_card', d), reply_markup=markups.cards_menu(d))
-                set_user_state(user_id, get_state_by_key('S_CARD_MENU'))
+                await bot.send_message(user_id, get_dict('error_add_card', d), reply_markup=markups.payments(d))
+                set_user_state(user_id, get_state_by_key('S_PAYMENTS'))
         else:
             await bot.send_message(user_id, get_dict('error_enter_card_expiry', d), reply_markup=markups.cancel(d))
     except Exception as e:
@@ -208,8 +220,8 @@ async def sms(message: types.Message):
         d = get_lang(user_id)
         update_log(user_id, get_log(user_id) + message.text)
         if message.text == get_dict('cancel', d):
-            await bot.send_message(user_id, get_dict('section', d), reply_markup=markups.cards_menu(d))
-            set_user_state(user_id, get_state_by_key('S_CARD_MENU'))
+            await bot.send_message(user_id, get_dict('payments_hint', d), reply_markup=markups.payments(d))
+            set_user_state(user_id, get_state_by_key('S_PAYMENTS'))
         else:
             sessionId = get_session_id(user_id)
             confirmCode = str(message.text)
@@ -232,8 +244,8 @@ async def sms(message: types.Message):
                 cards=''
                 set_user_state(user_id, get_state_by_key('S_CARD_MENU'))
             else:
-                await bot.send_message(user_id, get_dict('error_add_card', d), reply_markup=markups.cards_menu(d))
-                set_user_state(user_id, get_state_by_key('S_CARD_MENU'))
+                await bot.send_message(user_id, get_dict('error_add_card', d), reply_markup=markups.payments(d))
+                set_user_state(user_id, get_state_by_key('S_PAYMENTS'))
     except Exception as e:
         logger_app.error("/handlers/individual_cards.py\nMethod: new_card_number\n" + str(e))
 

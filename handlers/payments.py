@@ -1,6 +1,7 @@
-from misc import dp, bot, logger_app
+from misc import dp, bot
 from aiogram import types
-from vars import states, markups
+from vars import markups
+import os
 from database_connection.dbcon import *
 
 
@@ -18,11 +19,16 @@ async def payments(message: types.Message):
             set_user_state(user_id, get_state_by_key('S_CARD_TO_CARD'))
         elif message.text == get_dict('repayment_of_loans', d):
             await bot.send_message(user_id, get_dict('developing', d))
-            #await bot.send_message(user_id, get_dict('section', d), reply_markup=markups.repayment_of_loans_bank_type(d))
-            #set_user_state(user_id, get_state_by_key('S_REPAYMENT_OF_LOANS'))
         elif message.text == get_dict('mobile_operators', d):
             await bot.send_message(user_id, get_dict('payment_mobile_operators', d), reply_markup=markups.payment_mobile_operators(user_id, d))
             set_user_state(user_id, get_state_by_key('S_PAYMENT_MOBILE_OPERATORS'))
+        elif message.text == get_dict('add_new_card', d):
+            await bot.send_message(user_id, get_dict('create_card_agreement', d), reply_markup=markups.create_card_agreement(d))
+            set_user_state(user_id, get_state_by_key('S_CREATE_CARD_AGREEMENT'))
+            files_list = os.listdir(config['OFFER_PATH']['path']+d)
+            for i in files_list:
+                file = open(config['OFFER_PATH']['path'] + d + '/' + i, 'rb')
+                await bot.send_document(user_id, file)
         else:
             await bot.send_message(user_id, get_dict('payments_hint', d))
     except Exception as e:

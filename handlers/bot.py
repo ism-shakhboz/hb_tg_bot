@@ -4,12 +4,14 @@ from vars import markups
 from aiogram.types import ReplyKeyboardRemove
 from random import randint
 from database_connection.dbcon import *
+from misc import config
 
 
-@dp.message_handler(content_types=['photo'])
-async def image(message: types.Message):
-    file_info = await bot.get_file(message.photo[-1].file_id)
-    image_insert(file_info['file_id'], message.caption+'.jpg')
+if config['SEND_PHOTO']['access'] == '1':
+    @dp.message_handler(content_types=['photo'])
+    async def image(message: types.Message):
+            file_info = await bot.get_file(message.photo[-1].file_id)
+            image_insert(file_info['file_id'], message.caption + '.jpg')
 
 
 @dp.message_handler(commands=['start'])
@@ -22,18 +24,19 @@ async def start(message: types.Message):
         user = get_user(user_id)
 
         if user is None:
-            await bot.send_message(user_id, "Выберите язык / Tilni tanlang / Тилни танланг", reply_markup=markups.lang_m)
+            await bot.send_message(user_id, "Выберите язык / Tilni tanlang / Тилни танланг",
+                                   reply_markup=markups.lang_m)
             add_user(user_id, '', first_name, last_name, username, get_state_by_key('S_START'))
         else:
             status = get_user_status(user_id)
-            if get_user_status(user_id)=='0':
-              
-                await bot.send_message(user_id, "Выберите язык / Tilni tanlang / Тилни танланг", reply_markup=markups.lang_m)
+            if get_user_status(user_id) == '0':
+
+                await bot.send_message(user_id, "Выберите язык / Tilni tanlang / Тилни танланг",
+                                       reply_markup=markups.lang_m)
                 set_user_state(user_id, get_state_by_key('S_START'))
             else:
                 d = get_lang(user_id)
-             
-                await bot.send_message(user_id, get_dict('main_menu_hint', d), reply_markup=markups.main_menu(d))
+                await bot.send_message(user_id, get_dict('section', d), reply_markup=markups.main_menu(d))
                 set_user_state(user_id, get_state_by_key('S_GET_MAIN_MENU'))
     except Exception as e:
         logger_app.error("/handlers/bot.py\nMethod: start\n" + str(e))
@@ -71,9 +74,9 @@ async def auth(message: types.Message):
         script = 'SELECT "ID" FROM playmobile_report order by "ID" DESC LIMIT 1'
         cur = conn.cursor()
         cur.execute(script, (str(user_id),))
-        api.get_sms(message.contact.phone_number, otp, (int(cur.fetchone()[0])+1))
+        api.get_sms(message.contact.phone_number, otp, (int(cur.fetchone()[0]) + 1))
         playmobile_insert(user_id, 'Message is: ' + str(otp), str(dt.datetime.now()))
-        await bot.send_message(user_id, get_dict('sms_code', d), reply_markup = ReplyKeyboardRemove())
+        await bot.send_message(user_id, get_dict('sms_code', d), reply_markup=ReplyKeyboardRemove())
         set_user_state(user_id, get_state_by_key('S_CONFIRM_NUMBER'))
     except Exception as e:
         logger_app.error("/handlers/bot.py\nMethod: auth\n" + str(e))
@@ -100,10 +103,11 @@ async def confirm_number(message: types.Message):
             else:
                 await bot.send_message(user_id, get_dict('error_sms_code', d))
         else:
-         
-            await bot.send_message(user_id, "Выберите язык / Tilni tanlang / Тилни танланг", reply_markup=markups.lang_m)
+
+            await bot.send_message(user_id, "Выберите язык / Tilni tanlang / Тилни танланг",
+                                   reply_markup=markups.lang_m)
             set_user_state(user_id, get_state_by_key('S_START'))
-           
+
     except Exception as e:
         logger_app.error("/handlers/bot.py\nMethod: confirm_number\n" + str(e))
 
@@ -132,10 +136,13 @@ async def main_menu(message: types.Message):
             await bot.send_message(user_id, get_dict('section', d), reply_markup=markups.settings(d))
             set_user_state(user_id, get_state_by_key('S_SETTINGS'))
         elif message.text == get_dict('contact_bank', d):
-            if markups.buttons(d, 'feedback')["keyboard"][0][0] is None or markups.buttons(d, 'feedback')["keyboard"][0][0]=='':
+            if markups.buttons(d, 'feedback')["keyboard"][0][0] is None or \
+                    markups.buttons(d, 'feedback')["keyboard"][0][0] == '':
                 set_user_state(user_id, get_state_by_key('S_GET_MAIN_MENU'))
                 if get_buttons(d, 'feedback')[0][4]:
-                    await bot.send_message(user_id, get_buttons(d, 'feedback')[0][2], reply_markup=markups.inline_keyboards(d, 'feedback', get_buttons(d, 'feedback')[0][0]))
+                    await bot.send_message(user_id, get_buttons(d, 'feedback')[0][2],
+                                           reply_markup=markups.inline_keyboards(d, 'feedback',
+                                                                                 get_buttons(d, 'feedback')[0][0]))
                 else:
                     await bot.send_message(user_id, get_buttons(d, 'feedback')[0][2])
             else:
