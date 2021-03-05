@@ -369,7 +369,7 @@ def checkout(d):
 def cards_menu(d):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     markup.row(get_dict('balance', d), get_dict('statement', d))
-    markup.row(get_dict('block', d))
+    markup.row(get_dict('block', d), get_dict('add_new_card', d))
     markup.row(get_dict('main_menu', d), get_dict('back', d))
     return markup
 
@@ -418,10 +418,9 @@ def deposits_individual(d):
 
 def cards(d):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    markup.row(get_dict('my_cards', d), get_dict('uzcard', d))
-    markup.row(get_dict('humo', d), get_dict('visa', d))
-    markup.row(get_dict('union_pay', d), get_dict('back', d))
-    markup.row(get_dict('main_menu', d))
+    markup.row(get_dict('uzcard', d), get_dict('humo', d))
+    markup.row(get_dict('visa', d), get_dict('union_pay', d))
+    markup.row(get_dict('main_menu', d), get_dict('back', d))
     return markup
 
 
@@ -454,8 +453,8 @@ def legal_entity(d):
 
 def payments(d):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    markup.row(get_dict('card_to_card_transfers', d), get_dict('repayment_of_loans', d))
-    markup.row(get_dict('mobile_operators', d), get_dict('add_new_card', d))
+    markup.row(get_dict('my_cards', d), get_dict('card_to_card_transfers', d))
+    markup.row(get_dict('mobile_operators', d), get_dict('repayment_of_loans', d))
     markup.row(get_dict('back', d))
     return markup
 

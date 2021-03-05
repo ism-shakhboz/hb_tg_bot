@@ -33,3 +33,4 @@ from . import legal_entity_accepting_payment
 from . import legal_entity_deposit
 from . import individual_tariffs
 from . import legal_entity_tariffs
+from . import my_cards

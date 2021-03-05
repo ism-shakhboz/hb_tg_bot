@@ -695,6 +695,7 @@ def get_dict(key, lang):
         row = cur.fetchone()
         return row[0]
     except(Exception, Error) as e:
+
         logger_app.error("/database_connection/dbcon.py\nMethod: get_dict\n" + str(e))
 
 
