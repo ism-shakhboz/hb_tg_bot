@@ -10,7 +10,7 @@ try:
             if message == get_district(code_region, lang, code_branch_b(code_region, lang)[i][0]):
 
                 for j in get_branches(code_region, lang, code_branch_b(code_region, lang)[i][0]):
-                    await bot.send_photo(user_id, (get_image(j[1]+'.jpg'))[0])
+                    #await bot.send_photo(user_id, (get_image(j[1]+'.jpg'))[0])
                     await bot.send_location(user_id, j[3], j[4])
                     await bot.send_message(user_id, j[5])
                 break

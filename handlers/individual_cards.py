@@ -1,11 +1,7 @@
-﻿from misc import dp, bot, config
+﻿from misc import dp, bot
 from aiogram import types
 from vars import markups
-from cryptography.fernet import Fernet
 from database_connection.dbcon import *
-import json
-import api
-import os
 
 
 @dp.message_handler(lambda message: get_user_state(message.from_user.id) == get_state_by_key('S_CARD'))

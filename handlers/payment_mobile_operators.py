@@ -11,10 +11,9 @@ from database_connection.dbcon import *
 async def mobile_operators(message: types.Message):
     try:
         user_id = message.from_user.id
+        d = get_lang(user_id)
         first_name = message.from_user.first_name
         last_name = message.from_user.last_name
-        
-        d = get_lang(user_id)
         update_log(user_id, get_log(user_id) + message.text)
         if message.text == get_dict('cancel', d):
             await bot.send_message(user_id, get_dict('section', d), reply_markup=markups.payments(d))
@@ -22,6 +21,12 @@ async def mobile_operators(message: types.Message):
         elif (str(message.text).startswith('+998') and len(str(message.text)) == 13) or (
                 str(message.text).startswith('998') and len(str(message.text)) == 12):
             mobile_payment_report_commit(user_id, first_name, last_name, str(message.text).replace('+', ''), str(dt.datetime.now()))
+            set_mobile_payment_oper_id_app_user(user_id, (get_mobile_payment_oper_id(user_id)[0]))
+            set_user_state(user_id, get_state_by_key('S_TYPE_SUM_MOBILE_PAYMENT'))
+            await bot.send_message(user_id, get_dict('enter_amount', d), reply_markup=markups.cancel(d))
+        elif (str(message.text).startswith('9') and len(str(message.text)) == 9) or \
+                (str(message.text).startswith('8') and len(str(message.text)) == 9):
+            mobile_payment_report_commit(user_id, first_name, last_name, '998'+str(message.text), str(dt.datetime.now()))
             set_mobile_payment_oper_id_app_user(user_id, (get_mobile_payment_oper_id(user_id)[0]))
             set_user_state(user_id, get_state_by_key('S_TYPE_SUM_MOBILE_PAYMENT'))
             await bot.send_message(user_id, get_dict('enter_amount', d), reply_markup=markups.cancel(d))

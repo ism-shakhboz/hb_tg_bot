@@ -27,15 +27,15 @@ async def start(message: types.Message):
             await bot.send_message(user_id, "Выберите язык / Tilni tanlang / Тилни танланг",
                                    reply_markup=markups.lang_m)
             add_user(user_id, '', first_name, last_name, username, get_state_by_key('S_START'))
-        else:
-            status = get_user_status(user_id)
-            if get_user_status(user_id) == '0':
 
+        else:
+            if not get_user_status(user_id)[0]:
                 await bot.send_message(user_id, "Выберите язык / Tilni tanlang / Тилни танланг",
                                        reply_markup=markups.lang_m)
                 set_user_state(user_id, get_state_by_key('S_START'))
             else:
                 d = get_lang(user_id)
+
                 await bot.send_message(user_id, get_dict('section', d), reply_markup=markups.main_menu(d))
                 set_user_state(user_id, get_state_by_key('S_GET_MAIN_MENU'))
     except Exception as e:
@@ -47,14 +47,14 @@ async def lang(message: types.Message):
     try:
         user_id = message.from_user.id
         if message.text == "🇺🇿 O'zbekcha":
-            set_lang(user_id, 'uz')
-            await bot.send_message(user_id, get_dict('send_phone_number', 'uz'), reply_markup=markups.auth('uz'))
+            set_lang(user_id, 2)
+            await bot.send_message(user_id, get_dict('send_phone_number', 2), reply_markup=markups.auth(2))
         elif message.text == "🇷🇺 Русский":
-            set_lang(user_id, 'ru')
-            await bot.send_message(user_id, get_dict('send_phone_number', 'ru'), reply_markup=markups.auth('ru'))
+            set_lang(user_id, 1)
+            await bot.send_message(user_id, get_dict('send_phone_number', 1), reply_markup=markups.auth(1))
         elif message.text == "🇺🇿 Ўзбекча":
-            set_lang(user_id, 'cy')
-            await bot.send_message(user_id, get_dict('send_phone_number', 'cy'), reply_markup=markups.auth('cy'))
+            set_lang(user_id, 3)
+            await bot.send_message(user_id, get_dict('send_phone_number', 3), reply_markup=markups.auth(3))
         else:
             await bot.send_message(message.from_user.id, "Tilni tanlang/Выберите язык", reply_markup=markups.lang_m)
             set_user_state(user_id, get_state_by_key('S_START'))
@@ -74,7 +74,7 @@ async def auth(message: types.Message):
         script = 'SELECT "ID" FROM playmobile_report order by "ID" DESC LIMIT 1'
         cur = conn.cursor()
         cur.execute(script, (str(user_id),))
-        api.get_sms(message.contact.phone_number, otp, (int(cur.fetchone()[0]) + 1))
+        #api.get_sms(message.contact.phone_number, otp, (int(cur.fetchone()[0]) + 1))
         playmobile_insert(user_id, 'Message is: ' + str(otp), str(dt.datetime.now()))
         await bot.send_message(user_id, get_dict('sms_code', d), reply_markup=ReplyKeyboardRemove())
         set_user_state(user_id, get_state_by_key('S_CONFIRM_NUMBER'))
@@ -86,9 +86,6 @@ async def auth(message: types.Message):
 async def confirm_number(message: types.Message):
     try:
         user_id = message.from_user.id
-        first_name = message.from_user.first_name
-        last_name = message.from_user.last_name
-        username = message.from_user.username
         d = get_lang(user_id)
         get_expire = 'SELECT expire FROM app_users where user_id=(%s);'
         cur = conn.cursor()
@@ -109,7 +106,8 @@ async def confirm_number(message: types.Message):
             set_user_state(user_id, get_state_by_key('S_START'))
 
     except Exception as e:
-        logger_app.error("/handlers/bot.py\nMethod: confirm_number\n" + str(e))
+        print(e)
+        #logger_app.error("/handlers/bot.py\nMethod: confirm_number\n" + str(e))
 
 
 @dp.message_handler(lambda message: get_user_state(message.from_user.id) == get_state_by_key('S_GET_MAIN_MENU'))

@@ -51,19 +51,19 @@ purchase_sale_ex_rates = "🇺🇸 1 USD: %s - %s\n" \
 
 def purchase_calculator(cost, lang):
     result = cost * float(purchase[0])
-    if lang == "uz":
+    if lang == 2:
         return "$" + str(cost) + " sotib olish uchun, " + str(f"{result:,}") + " so'm kerak bo'ladi"
-    elif lang == "ru":
+    elif lang == 1:
         return "Для покупки $" + str(cost) + ", вам необходимо " + str(f"{result:,}") + " сум"
-    elif lang == "cy":
+    elif lang == 3:
         return "$" + str(cost) + " сотиб олиш учун, " + str(f"{result:,}") + " сўм керак бўлади"
 
 
 def sale_calculator(cost, lang):
     result = cost * float(sale[0])
-    if lang == "uz":
+    if lang == 2:
         return "$" + str(cost) + " sotish uchun, " + str(f"{result:,}") + " so'm kerak bo'ladi"
-    elif lang == "ru":
+    elif lang == 1:
         return "Для продажи $" + str(cost) + ", вам необходимо " + str(f"{result:,}") + " сум"
-    elif lang == "cy":
+    elif lang == 3:
         return "$" + str(cost) + " сотиш учун, " + str(f"{result:,}") + " сўм керак бўлади"

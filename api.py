@@ -1,6 +1,5 @@
 import requests
 import json
-import configparser
 from requests.auth import HTTPBasicAuth
 import datetime as dt
 import pytz

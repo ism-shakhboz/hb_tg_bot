@@ -616,12 +616,16 @@ def update(user_id, cards):
 
 def set_log(user_id, phone_number):
     try:
-        script = 'INSERT INTO log (user_id, phone_number, log_text) VALUES (%s, %s, %s);'
+        user = 'SELECT * FROM log WHERE user_id=(%s);'
         cur = conn.cursor()
-        cur.execute(script, (str(user_id), phone_number, '**** START ****'))
-        conn.commit()
+        cur.execute(user, (str(user_id),))
+        if cur.fetchone() is None:
+            script = 'INSERT INTO log (user_id, phone_number, log_text) VALUES (%s, %s, %s);'
+            cur = conn.cursor()
+            cur.execute(script, (str(user_id), phone_number, '**** START ****'))
+            conn.commit()
     except(Exception, Error) as e:
-        logger_app.error("/database_connection/dbcon.py\nMethod: set_log\n" + str(e))
+        print(e)
 
 
 def get_phone_number(user_id):
@@ -724,7 +728,7 @@ def get_user_status(user_id):
         script = 'SELECT status FROM app_users WHERE user_id=(%s);'
         cur = conn.cursor()
         cur.execute(script, (str(user_id),))
-        return cur.fetchone()[0]
+        return cur.fetchone()
     except(Exception, Error) as e:
         logger_app.error("/database_connection/dbcon.py\nMethod: get_user_status\n" + str(e))
 
@@ -732,7 +736,7 @@ def update_user_status(user_id):
     try:
         script = 'UPDATE app_users SET status=(%s) WHERE user_id=(%s);'
         cur = conn.cursor()
-        cur.execute(script, ('1', str(user_id)))
+        cur.execute(script, (True, str(user_id)))
         conn.commit()
     except(Exception, Error) as e:
         logger_app.error("/database_connection/dbcon.py\nMethod: update_user_status\n" + str(e))
@@ -742,7 +746,7 @@ def add_user(user_id, phone_number, first_name, last_name, username, state):
         script = 'INSERT INTO app_users (user_id, phone_number, first_name, last_name, username, user_language, ' \
                  'state, code_otp, status, expire) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);'
         cur = conn.cursor()
-        cur.execute(script, (str(user_id), phone_number, first_name, last_name, username, 'ru', state, None, '0', str(dt.datetime.now())))
+        cur.execute(script, (str(user_id), phone_number, first_name, last_name, username, 1, state, None, False, str(dt.datetime.now())))
         conn.commit()
     except(Exception, Error) as e:
-        print(e)
+        logger_app.error("/database_connection/dbcon.py\nMethod: add_user\n" + str(e))
